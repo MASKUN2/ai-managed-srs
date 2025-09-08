@@ -1,4 +1,19 @@
+# 요구요구 (AI가 관리하는 요구사항명세서)
+AI가 관리하는 요구사항명세서
 
+#### 예시1
+```text
+
+사용자: 유저 요구사항을 추가해줘. 사용자는 10자의 닉네임을 가지고 이메일을 가지고 있어야해
+AI: 알겠습니다. 유저(User) 도메인에 대한 요구사항 명세서를 작성하겠습니다. 기존에 검색된 문서가 없으므로 신규 문서를 생성하겠습니다. 
+
+
+```
+### 요구사항
+
+- 사용자는 웹 기반의 대화창에서 AI와 대화가 가능하다.
+- 클라이언트 구성은 간단히 타임리프로 작성한다.
+- 채팅경로는 /chat 으로 한다.
 
 ### 트러블 슈팅
 #### f9659aedf8cde55de5890580fc385a3d135f5ded
@@ -18,3 +33,7 @@ org.springframework.ai.vectorstore.pgvector.autoconfigure.PgVectorStoreAutoConfi
 ```yaml
 spring.ai.model.embedding=bedrock-titan
 ```
+
+
+### reference
+https://docs.spring.io/spring-ai/reference/api/chatclient.html
