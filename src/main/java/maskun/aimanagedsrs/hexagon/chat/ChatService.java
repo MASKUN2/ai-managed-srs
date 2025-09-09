@@ -12,9 +12,9 @@ public class ChatService implements Chat {
     private final ChatClient client;
 
     @Override
-    public String send(String message) {
+    public String send(UserChatRequest request) {
         return client.prompt()
-                .user(message)
+                .user(request.message())
                 .call()
                 .content();
     }
