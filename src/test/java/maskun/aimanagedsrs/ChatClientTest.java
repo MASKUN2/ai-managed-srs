@@ -11,11 +11,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ChatClientTest {
 
     @Autowired
-    private ChatClient.Builder builder;
+    private ChatClient client;
 
     @Test
     void connectionTest(){
-        ChatClient client = builder.build();
         String answer = client.prompt("안녕?")
                 .call()
                 .content();
