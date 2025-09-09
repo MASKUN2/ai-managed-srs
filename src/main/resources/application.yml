@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: ai-managed-srs
+  ai:
+    model:
+      embedding: bedrock-titan
