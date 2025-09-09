@@ -106,7 +106,7 @@
     const chatMessages = document.getElementById('chatMessages');
 
     // 폼 제출 이벤트 처리
-    chatForm.addEventListener('submit', function (event) {
+    chatForm.addEventListener('submit', async function (event) {
         event.preventDefault(); // 폼의 기본 제출 동작(새로고침) 방지
         const messageText = messageInput.value.trim();
 
@@ -117,7 +117,7 @@
             messageInput.value = ''; // 입력창 비우기
 
             // 2. 요청을 받고 응답함
-            const botResponse = getBotResponse(messageText);
+            const botResponse = await getBotResponse(messageText);
             appendMessage(botResponse, 'bot');
         }
     });
