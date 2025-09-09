@@ -4,3 +4,13 @@ spring:
   ai:
     model:
       embedding: bedrock-titan
+      chat: bedrock-converse
+    bedrock:
+      converse:
+        chat:
+          options:
+            model: apac.amazon.nova-micro-v1:0
+      aws:
+        access-key: [hidden]
+        secret-key: [hidden]
+        region: ap-northeast-2
