@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <title>Chat Client</title>
@@ -110,16 +110,15 @@
         event.preventDefault(); // 폼의 기본 제출 동작(새로고침) 방지
         const messageText = messageInput.value.trim();
 
+
         if (messageText) {
             // 1. 사용자 메시지 화면에 추가
             appendMessage(messageText, 'user');
             messageInput.value = ''; // 입력창 비우기
 
-            // 2. 챗봇 응답 시뮬레이션 (1초 후)
-            setTimeout(() => {
-                const botResponse = `'${messageText}'에 대한 응답입니다.`;
-                appendMessage(botResponse, 'bot');
-            }, 1000);
+            // 2. 요청을 받고 응답함
+            const botResponse = getBotResponse(messageText);
+            appendMessage(botResponse, 'bot');
         }
     });
 
@@ -136,6 +135,39 @@
 
         // 스크롤을 항상 아래로 이동
         chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    async function getBotResponse(messageText) {
+        const API_ENDPOINT = 'http://127.0.0.1:8080/api/v1/chat'; // ⬅️ 실제 API 엔드포인트로 변경하세요.
+
+        try {
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: messageText
+                }),
+            });
+
+            // fetch는 4xx, 5xx 에러를 throw하지 않으므로 직접 확인해야 함
+            if (!response.ok) {
+
+                // 서버에서 에러 응답이 온 경우
+                const errorData = await response.json();
+                return `오류가 발생했습니다: ${errorData.message || response.statusText}`;
+            }
+
+            const data = await response.json();
+            return data.reply; // ⬅️ API 응답 형식에 맞게 'data.reply' 부분을 수정하세요.
+
+        } catch (error) {
+
+            // 네트워크 연결 문제 등 fetch 자체가 실패한 경우
+            console.error('API 요청 실패:', error);
+            return '죄송합니다, 서버와 통신하는 데 실패했습니다.';
+        }
     }
 </script>
 
