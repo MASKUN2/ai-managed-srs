@@ -1,3 +1,8 @@
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      force-response: true
 spring:
   application:
     name: ai-managed-srs
