@@ -40,6 +40,7 @@
             border-radius: 18px;
             max-width: 70%;
             word-wrap: break-word;
+            white-space: pre-wrap;
         }
 
         .bot-message {
@@ -89,85 +90,89 @@
 <body>
 
 <div class="chat-container">
-    <div class="chat-messages" id="chatMessages">
-        <div class="message bot-message">안녕하세요! 무엇을 도와드릴까요?</div>
-        <div class="message user-message">Thymeleaf에 대해 알려줘.</div>
-    </div>
+    <div class="chat-messages" id="chatMessages"></div>
 
     <form class="chat-form" id="chatForm">
-        <label for="messageInput"></label><input autocomplete="off" id="messageInput" placeholder="메시지를 입력하세요..."
-                                                 type="text">
+        <label for="chatInput"></label>
+        <input autocomplete="off" id="chatInput" placeholder="메시지를 입력하세요..." type="text">
         <button type="submit">➤</button>
     </form>
 </div>
-
 <script>
     const chatForm = document.getElementById('chatForm');
-    const messageInput = document.getElementById('messageInput');
+    const chatInput = document.getElementById('chatInput');
     const chatMessages = document.getElementById('chatMessages');
 
-    // 폼 제출 이벤트 처리
+    const principal = {
+        USER: {name: "USER", className: "message user-message"},
+        BOT: {name: "BOT", className: "message bot-message"}
+    }
+
     chatForm.addEventListener('submit', async function (event) {
         event.preventDefault(); // 폼의 기본 제출 동작(새로고침) 방지
-        const messageText = messageInput.value.trim();
 
+        // 1. 사용자
+        const prompt = chatInput.value.trim();
+        if (!prompt) return;
+        chatInput.value = '';
 
-        if (messageText) {
-            // 1. 사용자 메시지 화면에 추가
-            appendMessage(messageText, 'user');
-            messageInput.value = ''; // 입력창 비우기
+        let userMessage = createChatMessage(principal.USER);
+        userMessage.textContent += prompt;
+        scrollDown();
 
-            // 2. 요청을 받고 응답함
-            const botResponse = await getBotResponse(messageText);
-            appendMessage(botResponse, 'bot');
+        // 2. 봇
+        let botMessage = createChatMessage(principal.BOT);
+        for await (const chunk of generateResponse(prompt)) {
+            botMessage.textContent += chunk;
+            scrollDown();
         }
     });
 
-    /**
-     * 화면에 메시지를 추가하는 함수
-     * @param {string} text - 메시지 텍스트
-     * @param {string} sender - 'user' 또는 'bot'
-     */
-    function appendMessage(text, sender) {
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
-        messageDiv.textContent = text;
-        chatMessages.appendChild(messageDiv);
+    function createChatMessage(principalType) {
+        const message = document.createElement('div');
+        message.className = principalType.className;
+        message.textContent = '';
+        chatMessages.appendChild(message);
+        return message;
+    }
 
-        // 스크롤을 항상 아래로 이동
+    function scrollDown() {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    async function getBotResponse(messageText) {
-        const API_ENDPOINT = 'http://127.0.0.1:8080/api/v1/chat'; // ⬅️ 실제 API 엔드포인트로 변경하세요.
+    async function* generateResponse(prompt) {
+        const API_ENDPOINT = 'http://127.0.0.1:8080/api/v1/chat';
 
         try {
             const response = await fetch(API_ENDPOINT, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    message: messageText
+                    message: prompt
                 }),
             });
 
-            // fetch는 4xx, 5xx 에러를 throw하지 않으므로 직접 확인해야 함
             if (!response.ok) {
-
-                // 서버에서 에러 응답이 온 경우
+                yield `죄송합니다. 서버로부터 정상적인 응답을 받지 못했습니다.`;
                 const errorData = await response.json();
-                return `오류가 발생했습니다: ${errorData.message || response.statusText}`;
+                console.error(`오류가 발생했습니다: ${errorData.message || response.statusText}`)
+                return;
             }
 
-            const data = await response.json();
-            return data.message;
+            let reader = response.body.getReader();
+            let decoder = new TextDecoder();
+
+            while (true) {
+                const {value, done} = await reader.read();
+                if (done) break;
+                yield decoder.decode(value);
+            }
 
         } catch (error) {
-
-            // 네트워크 연결 문제 등 fetch 자체가 실패한 경우
             console.error('API 요청 실패:', error);
-            return '죄송합니다, 서버와 통신하는 데 실패했습니다.';
+            yield '죄송합니다. 서버와 통신하는 데 실패했습니다.';
         }
     }
 </script>
