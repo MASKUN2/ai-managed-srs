@@ -17,7 +17,7 @@
 
         .chat-container {
             width: 450px;
-            height: 700px;
+            height: 800px;
             background-color: #ffffff;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -85,13 +85,35 @@
         .chat-form button:hover {
             background-color: #0056b3;
         }
+
+        .preset-prompts {
+            padding: 10px 15px 5px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .preset-prompt-btn {
+            background-color: #f1f1f1;
+            border: none;
+            border-radius: 16px;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .preset-prompt-btn:hover {
+            background-color: #e0e0e0;
+        }
     </style>
 </head>
 <body>
 
 <div class="chat-container">
     <div class="chat-messages" id="chatMessages"></div>
-
+    <div class="preset-prompts" id="presetPrompts"></div>
     <form class="chat-form" id="chatForm">
         <label for="chatInput"></label>
         <input autocomplete="off" id="chatInput" placeholder="메시지를 입력하세요..." type="text">
@@ -102,30 +124,48 @@
     const chatForm = document.getElementById('chatForm');
     const chatInput = document.getElementById('chatInput');
     const chatMessages = document.getElementById('chatMessages');
+    const presetPromptsContainer = document.getElementById('presetPrompts'); /* 추가 */
 
     const principal = {
         USER: {name: "USER", className: "message user-message"},
         BOT: {name: "BOT", className: "message bot-message"}
     }
 
-    chatForm.addEventListener('submit', async function (event) {
-        event.preventDefault(); // 폼의 기본 제출 동작(새로고침) 방지
+    const presetPrompts = [
+        '안녕? 자기소개해줘',
+        '소프트웨어 개발의 "요구사항"이란 무엇인지 알려줘'
+    ]
 
-        // 1. 사용자
-        const prompt = chatInput.value.trim();
+    presetPrompts.forEach(prompt => {
+        const btn = document.createElement('button');
+        btn.className = 'preset-prompt-btn';
+        btn.textContent = prompt;
+        btn.addEventListener('click', () => {
+            submit(prompt);
+        });
+        presetPromptsContainer.appendChild(btn);
+    });
+
+    async function submit(prompt) {
         if (!prompt) return;
-        chatInput.value = '';
 
-        let userMessage = createChatMessage(principal.USER);
-        userMessage.textContent += prompt;
+        // 1. 사용자 메시지 화면에 표시
+        createChatMessage(principal.USER).textContent = prompt;
         scrollDown();
 
-        // 2. 봇
-        let botMessage = createChatMessage(principal.BOT);
+        // 2. 봇 응답 스트리밍 처리
+        const botMessage = createChatMessage(principal.BOT);
         for await (const chunk of generateResponse(prompt)) {
             botMessage.textContent += chunk;
             scrollDown();
         }
+    }
+
+    chatForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const prompt = chatInput.value.trim();
+        chatInput.value = ''; // 입력창 비우기
+        submit(prompt);
     });
 
     function createChatMessage(principalType) {
@@ -142,34 +182,25 @@
 
     async function* generateResponse(prompt) {
         const API_ENDPOINT = 'http://127.0.0.1:8080/api/v1/chat';
-
         try {
             const response = await fetch(API_ENDPOINT, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    message: prompt
-                }),
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({message: prompt}),
             });
-
             if (!response.ok) {
                 yield `죄송합니다. 서버로부터 정상적인 응답을 받지 못했습니다.`;
                 const errorData = await response.json();
                 console.error(`오류가 발생했습니다: ${errorData.message || response.statusText}`)
                 return;
             }
-
-            let reader = response.body.getReader();
-            let decoder = new TextDecoder();
-
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
             while (true) {
                 const {value, done} = await reader.read();
                 if (done) break;
                 yield decoder.decode(value);
             }
-
         } catch (error) {
             console.error('API 요청 실패:', error);
             yield '죄송합니다. 서버와 통신하는 데 실패했습니다.';
