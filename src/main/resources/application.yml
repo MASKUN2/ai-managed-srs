@@ -1,3 +1,4 @@
+
 server:
   servlet:
     encoding:
@@ -7,6 +8,11 @@ spring:
   application:
     name: ai-managed-srs
   ai:
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: always
     model:
       embedding: bedrock-titan
       chat: bedrock-converse
@@ -20,3 +26,7 @@ spring:
         access-key: [hidden]
         secret-key: [hidden]
         region: ap-northeast-2
+logging:
+  level:
+    org.springframework:
+      ai.chat.client.advisor: DEBUG
