@@ -17,7 +17,7 @@ public class ChatApi {
     final Chat chat;
 
     @PostMapping(CHAT_API_URL)
-    public ResponseEntity<String> send(@Valid @RequestBody UserChatRequest request) {
-        return ResponseEntity.ok(chat.send(request));
+    public ResponseEntity<UserChatResponse> send(@Valid @RequestBody UserChatRequest request) {
+        return ResponseEntity.ok(new UserChatResponse(chat.send(request)));
     }
 }
