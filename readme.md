@@ -38,13 +38,16 @@ https://github.com/spring-projects
 
 ### 용어정리
 
-| 한글  | 영어      | 지양할 유사어        |
-|-----|---------|----------------|
-| 대화  | Chat    | Conversation   |
-| 메세지 | message | prompt         |
-| 사용자 | User    |                |
-| 봇   | Bot     | LLM, Assistant |
-|     |         |                |
+| 한글 : 영어               | 설명               |
+|-----------------------|------------------|
+| 메세지를 주고 받음:Chat       |                  |
+| 대화:Conversation       | 도메인이며 여러 메세지를 가짐 |
+| 메세지:Message           | 메세지 원문:content   |
+| 인공지능 모델에 대한 입력:Prompt |                  |
+| 사용자:User              |                  |
+| 도우미:Assistant         |                  |
+| 인공지능 모델 : (Chat)Model |                  |
+| 응답을 받다: getResponse   |                  |
 
 ### 이슈노트
 
