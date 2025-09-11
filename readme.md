@@ -38,12 +38,12 @@ https://github.com/spring-projects
 
 ### 용어정리
 
-| 한글  | 영어           | 지양할 유사어  |
-|-----|--------------|----------|
-| 대화  | Conversation | Chat     |
-| 사용자 | User         |          |
-| 봇   | Assistant    | LLM, Bot |
-|     |              |          |
+| 한글  | 영어   | 지양할 유사어        |
+|-----|------|----------------|
+| 대화  | Chat | Conversation   |
+| 사용자 | User |                |
+| 봇   | Bot  | LLM, Assistant |
+|     |      |                |
 
 ### 이슈노트
 
