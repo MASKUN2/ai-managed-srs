@@ -1,3 +1,4 @@
+
 # 요구요구 (AI가 관리하는 요구사항명세서)
 AI가 관리하는 요구사항명세서
 
@@ -20,6 +21,29 @@ AI: 알겠습니다. 유저(User) 도메인에 대한 요구사항 명세서를 
   '안녕? 자기소개해줘',
   '소프트웨어 개발의 "요구사항"이란 무엇인지 알려줘'
   ]
+
+### 공부한 방법
+
+#### Spring AI 레퍼런스 문서 원어로 읽기
+
+https://docs.spring.io/spring-ai/reference/api/chatclient.html
+
+#### 구현중 발생한 이슈를 해결하기 위해 GitHub Spring AI Repository 이슈에서 검색해서 읽기
+
+https://github.com/spring-projects
+
+#### 참고서적 읽기
+
+- 최고의 프롬프트 엔지니어링 강의 - 김진중
+
+### 용어정리
+
+| 한글  | 영어           | 지양할 유사어  |
+|-----|--------------|----------|
+| 대화  | Conversation | Chat     |
+| 사용자 | User         |          |
+| 봇   | Assistant    | LLM, Bot |
+|     |              |          |
 
 ### 이슈노트
 
@@ -72,5 +96,23 @@ spring.ai.model.embedding=bedrock-titan
 응답 컨텐츠 타입을 변경 `Content-Type: text/plain`. 서버 컨트롤러 메서드 리턴타입을 수정`Flux<String>`. 청크`Transfer-Encoding: chunked` 응답을 하도록
 변경함. 클라이언트 소스에서는 `fetch()` 만 사용하여 응답 바디를 실시간으로 읽어 렌더링하는 방식으로 구현함
 
-### reference
-https://docs.spring.io/spring-ai/reference/api/chatclient.html
+#### 1364dbf5a28f5470fa6abb3c499845e5601052f7
+
+##### 문제
+
+```text
+software.amazon.awssdk.services.bedrockruntime.model.ValidationException: A conversation must start with a user message. Try again with a conversation that starts with a user message. 
+```
+
+AWS bedrock LLM Model Nova Mirco API 사용시 요청문의 messages 리스트의 0번 객체가 UserMessage이지 않아서 요청이 거부된 문제가 발생함
+
+##### 해결
+
+`ChatMemory.maxMessages({size})`가 홀수인 경우 요청문의 첫번째 message 객체가 AssistantMessage가 들어가게 됨. 이를 짝수로 변경하여 회피하였음.
+
+####  
+
+##### 문제
+
+`JdbcChatMemoryRepository`,`ChatMemory`의 기본 구현이 `ChatMemory.maxMessages({size})`크기를 제외한 나머지 ChatMemory를 초기화하므로 따로 대화 기록이
+저장되지 않음
