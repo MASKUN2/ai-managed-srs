@@ -21,7 +21,8 @@ AI: 알겠습니다. 유저(User) 도메인에 대한 요구사항 명세서를 
   '소프트웨어 개발의 "요구사항"이란 무엇인지 알려줘'
   ]
 
-### 트러블 슈팅
+### 이슈노트
+
 #### f9659aedf8cde55de5890580fc385a3d135f5ded
 ##### 문제
 ```text
@@ -40,6 +41,36 @@ org.springframework.ai.vectorstore.pgvector.autoconfigure.PgVectorStoreAutoConfi
 spring.ai.model.embedding=bedrock-titan
 ```
 
+#### 36bb7cbd87d3902df800605610f7476ee0998999
+
+##### 문제
+
+`spring.ai.bedrock.converse.chat.options.max-tokens` 의 프로퍼티를 resolve 하지못함
+
+##### 원인
+
+프레임워크의 관련 클래스가 인터페이스이고 구현체가 없어서 생긴 문제. 다만 런타임에 인식은 하는 상황
+
+##### 조치 보류
+
+깃허브에 관련 이슈가 등록되고 수정된 부분이 다음 버전에 머지된 것을 확인하였음.
+
+#### 738d1e8bda08d9e8e2b6b5d84e551647f5bc5faa, b5e0e7e71f6bd90e4aa14b1e751cf12cadaea80d
+
+##### 문제
+
+봇의 응답을 스트리밍 하는 과정에서 SSE 방식으로 서버 측 컨텐츠 타입을 `text/event-stream`로 하여 구현을 시도했지만 클라이언트(Thymeleaf)에서 수신 데이터 형식
+`data: {text} \\n\\n` 파싱의 어려움을 겪음 몇몇 응답에서는 `data: \\n data: \\n` 형식으로 오는 문제 발생. JS의 `fetch()`로는 이것을 구현하기가 복잡하였음
+
+##### 고민
+
+요청후 이벤트 수신을 받는 클라이언트 소스에서 JS의 `fetch()` , `eventSource()`를 조합하는 방식을 고려했으나 성격이 맞지 못했고. Microsoft의 Fetch-event-source
+라이브러리를 도입할 것을 고려했으나 그것이 ESM이고 현재의 클라이언트(Thymeleaf) 환경에서는 자동빌드나 자동완성을 지원하지 않아서 보류함.
+
+##### 해결
+
+응답 컨텐츠 타입을 변경 `Content-Type: text/plain`. 서버 컨트롤러 메서드 리턴타입을 수정`Flux<String>`. 청크`Transfer-Encoding: chunked` 응답을 하도록
+변경함. 클라이언트 소스에서는 `fetch()` 만 사용하여 응답 바디를 실시간으로 읽어 렌더링하는 방식으로 구현함
 
 ### reference
 https://docs.spring.io/spring-ai/reference/api/chatclient.html
