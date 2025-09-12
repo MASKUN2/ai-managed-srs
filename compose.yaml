@@ -5,6 +5,7 @@ services:
       - 'POSTGRES_DB=ams'
       - 'POSTGRES_PASSWORD=secret'
       - 'POSTGRES_USER=myuser'
+      - 'TZ=UTC'
     labels:
       - "org.springframework.boot.service-connection=postgres"
     ports:
