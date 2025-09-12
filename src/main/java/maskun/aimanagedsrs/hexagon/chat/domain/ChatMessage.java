@@ -9,7 +9,9 @@ import org.springframework.ai.chat.messages.MessageType;
 import java.time.Instant;
 
 @Entity
-@Table(name = "chat_message", indexes = @Index(columnList = "conversation_id"))
+@Table(name = "chat_message",
+        indexes = {@Index(name = "idx_conversation_id", columnList = "conversation_id"),
+                @Index(name = "idx_created_at", columnList = "created_at")})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatMessage {
 
@@ -27,7 +29,7 @@ public class ChatMessage {
     @Column(nullable = false)
     private Instant createdAt;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
     public static ChatMessage of(@NonNull String conversationId,
