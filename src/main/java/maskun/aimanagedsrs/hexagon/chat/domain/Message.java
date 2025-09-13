@@ -14,8 +14,7 @@ import java.util.UUID;
 
 @Entity
 @Getter
-@Table(name = "message",
-        indexes = @Index(name = "idx_message_created_at", columnList = "created_at"))
+@Table(name = "message", indexes = @Index(name = "idx_message_created_at", columnList = "created_at"))
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Message {
 

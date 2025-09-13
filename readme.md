@@ -46,7 +46,6 @@ https://github.com/spring-projects
 | 인공지능 모델에 대한 입력:Prompt |                  |
 | 사용자:User              |                  |
 | 도우미:Assistant         |                  |
-| 인공지능 모델 : (Chat)Model |                  |
 | 응답을 받다: getResponse   |                  |
 
 ### 이슈노트
