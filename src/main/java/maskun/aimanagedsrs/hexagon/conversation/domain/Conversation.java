@@ -14,6 +14,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static jakarta.persistence.CascadeType.*;
+import static maskun.aimanagedsrs.hexagon.conversation.domain.Message.Role;
+import static maskun.aimanagedsrs.hexagon.conversation.domain.Message.of;
 
 @Entity
 @Getter
@@ -34,8 +36,14 @@ public class Conversation {
         return new Conversation();
     }
 
-    public Message addNewMessage(Message.Role role, String content) {
-        Message message = Message.of(this, role, content);
+    public Message addUserMessage(String content) {
+        Message message = of(this, Role.USER, content);
+        messages.add(message);
+        return message;
+    }
+
+    public Message addNewMessage(Role role, String content) {
+        Message message = of(this, role, content);
         messages.add(message);
         return message;
     }

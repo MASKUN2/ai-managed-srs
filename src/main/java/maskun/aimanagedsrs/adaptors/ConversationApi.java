@@ -15,7 +15,7 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class ConversationApi {
     static final String API_URL = "/api/v1/conversation";
-    final ConversationResponseGenerator conversation;
+    final ConversationResponseGenerator responseGenerator;
 
     @PostMapping(
             path = API_URL,
@@ -23,6 +23,6 @@ public class ConversationApi {
             produces = MediaType.TEXT_PLAIN_VALUE
     )
     public Flux<String> send(@Valid @RequestBody UserMessageRequest request) {
-        return conversation.getResponse(request);
+        return responseGenerator.getResponse(request).getStream();
     }
 }
