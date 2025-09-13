@@ -1,4 +1,4 @@
-package maskun.aimanagedsrs.hexagon;
+package maskun.aimanagedsrs.hexagon.shared;
 
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedEpochRandomGenerator;

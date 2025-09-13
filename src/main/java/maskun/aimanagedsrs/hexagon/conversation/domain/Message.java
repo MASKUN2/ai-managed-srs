@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import maskun.aimanagedsrs.hexagon.UUIDv7;
+import maskun.aimanagedsrs.hexagon.shared.UUIDv7;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.time.Instant;
