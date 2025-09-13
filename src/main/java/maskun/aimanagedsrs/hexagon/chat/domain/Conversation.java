@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import maskun.aimanagedsrs.hexagon.UUIDv7;
 import org.hibernate.proxy.HibernateProxy;
 
@@ -35,7 +34,7 @@ public class Conversation {
         return new Conversation();
     }
 
-    public Message addNewMessage(@NonNull Message.Role role, @NonNull String content) {
+    public Message addNewMessage(Message.Role role, String content) {
         Message message = Message.of(this, role, content);
         messages.add(message);
         return message;
