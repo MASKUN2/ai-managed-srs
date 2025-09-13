@@ -10,8 +10,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
 class ConversationRepositoryTest {
+
     @Autowired
     EntityManager entityManager;
+
     @Autowired
     private ConversationRepository repository;
 
