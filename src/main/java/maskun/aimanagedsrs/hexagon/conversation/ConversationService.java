@@ -2,7 +2,7 @@ package maskun.aimanagedsrs.hexagon.conversation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import maskun.aimanagedsrs.hexagon.conversation.provided.Chat;
+import maskun.aimanagedsrs.hexagon.conversation.provided.Conversation;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ChatService implements Chat {
+public class ConversationService implements Conversation {
 
     private final ChatClient client;
 
