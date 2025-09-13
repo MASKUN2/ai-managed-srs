@@ -122,13 +122,50 @@
 </div>
 <script>
     const chatForm = document.getElementById('chatForm');
-    const chatInput = document.getElementById('chatInput');
+    const chatInput = document.getElementById('userInput');
     const messagesContainer = document.getElementById('messages');
     const recommendedInputsContainer = document.getElementById('recommendedInputs');
 
     const principal = {
         USER: {name: "USER", className: "message user-message"},
         ASSISTANT: {name: "ASSISTANT", className: "message assistant-message"}
+    }
+
+    let conversationId;
+
+    startNewConversation().then(response => {
+        conversationId = response.conversationId;
+        console.log(conversationId);
+    })
+
+    async function startNewConversation() {
+        const API_ENDPOINT = '/api/v1/conversation'; // 상대 경로 사용
+
+        try {
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+                // Controller의 startNew() 메소드는 @RequestBody가 없으므로 body는 보내지 않습니다.
+            });
+
+            // HTTP 상태 코드가 200-299 범위가 아닐 경우 에러 처리
+            if (!response.ok) {
+                // 서버가 보낸 에러 메시지가 있다면 포함시키고, 없다면 기본 상태 메시지를 사용합니다.
+                const errorData = await response.json().catch(() => ({message: response.statusText}));
+                throw new Error(`Failed to start a new conversation: ${errorData.message || response.statusText}`);
+            }
+
+            // 성공적인 응답을 JSON 객체로 파싱하여 반환
+            return await response.json();
+
+        } catch (error) {
+            // 네트워크 에러 또는 위에서 던진 에러를 처리
+            console.error('Error starting new conversation:', error);
+            // 에러를 다시 던져서 호출한 쪽에서 추가적인 처리를 할 수 있도록 함
+            throw error;
+        }
     }
 
     // [수정 3] 변수명을 컨테이너와 의미적으로 맞게 변경했습니다.
@@ -193,8 +230,8 @@
         // [수정 8] API 요청 body 형식을 서버에 맞게 수정했습니다. (이전 코드에는 message: prompt 로 되어있었음)
         // Spring AI ChatController 기본 형식은 content 와 conversationId 입니다.
         // 여기서는 간단하게 content 만 보냅니다.
-        const requestBody = {content: prompt, conversationId: "test-conversation-id"};
-        const API_ENDPOINT = 'http://127.0.0.1:8080/api/v1/conversation';
+        const requestBody = {content: prompt, conversationId: conversationId};
+        const API_ENDPOINT = 'http://127.0.0.1:8080/api/v1/conversation/messages';
         try {
             const response = await fetch(API_ENDPOINT, {
                 method: 'POST',
