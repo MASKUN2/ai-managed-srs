@@ -1,4 +1,4 @@
 @NullMarked
-package maskun.aimanagedsrs.hexagon.chat.provided;
+package maskun.aimanagedsrs.hexagon.conversation;
 
 import org.jspecify.annotations.NullMarked;

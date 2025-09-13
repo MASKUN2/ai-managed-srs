@@ -1,6 +1,6 @@
-package maskun.aimanagedsrs.hexagon.chat.provided;
+package maskun.aimanagedsrs.hexagon.conversation.provided;
 
-import maskun.aimanagedsrs.hexagon.chat.domain.Conversation;
+import maskun.aimanagedsrs.hexagon.conversation.domain.Conversation;
 
 import java.util.Optional;
 import java.util.UUID;

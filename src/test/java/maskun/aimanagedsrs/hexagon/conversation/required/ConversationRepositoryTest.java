@@ -1,7 +1,7 @@
-package maskun.aimanagedsrs.hexagon.chat.required;
+package maskun.aimanagedsrs.hexagon.conversation.required;
 
 import jakarta.persistence.EntityManager;
-import maskun.aimanagedsrs.hexagon.chat.domain.Conversation;
+import maskun.aimanagedsrs.hexagon.conversation.domain.Conversation;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;

@@ -1,4 +1,4 @@
-package maskun.aimanagedsrs.hexagon.chat;
+package maskun.aimanagedsrs.hexagon.conversation;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;

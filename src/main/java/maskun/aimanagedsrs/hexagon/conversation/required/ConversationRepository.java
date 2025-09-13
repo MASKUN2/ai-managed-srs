@@ -1,6 +1,6 @@
-package maskun.aimanagedsrs.hexagon.chat.required;
+package maskun.aimanagedsrs.hexagon.conversation.required;
 
-import maskun.aimanagedsrs.hexagon.chat.domain.Conversation;
+import maskun.aimanagedsrs.hexagon.conversation.domain.Conversation;
 import org.springframework.data.repository.Repository;
 
 import java.util.Optional;

@@ -1,8 +1,8 @@
 package maskun.aimanagedsrs.adaptors;
 
 import lombok.RequiredArgsConstructor;
-import maskun.aimanagedsrs.hexagon.chat.UserChatRequest;
-import maskun.aimanagedsrs.hexagon.chat.provided.Chat;
+import maskun.aimanagedsrs.hexagon.conversation.UserChatRequest;
+import maskun.aimanagedsrs.hexagon.conversation.provided.Chat;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

@@ -1,4 +1,4 @@
-package maskun.aimanagedsrs.hexagon.chat;
+package maskun.aimanagedsrs.hexagon.conversation;
 
 import javax.validation.constraints.NotNull;
 

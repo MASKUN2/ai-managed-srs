@@ -1,4 +1,4 @@
-package maskun.aimanagedsrs.hexagon.chat.domain;
+package maskun.aimanagedsrs.hexagon.conversation.domain;
 
 import org.junit.jupiter.api.Test;
 
