@@ -18,4 +18,9 @@ public class ConversationQueryService implements ConversationFinder {
     public Optional<Conversation> find(UUID id) {
         return repository.findById(id);
     }
+
+    @Override
+    public Class<Conversation> getEntityClass() {
+        return Conversation.class;
+    }
 }
