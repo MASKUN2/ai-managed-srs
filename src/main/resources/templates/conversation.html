@@ -15,7 +15,7 @@
             height: 100vh;
         }
 
-        .chat-container {
+        .conversation-container {
             width: 450px;
             height: 800px;
             background-color: #ffffff;
@@ -26,7 +26,7 @@
             overflow: hidden;
         }
 
-        .chat-messages {
+        .messages {
             flex: 1;
             padding: 20px;
             overflow-y: auto;
@@ -43,7 +43,7 @@
             white-space: pre-wrap;
         }
 
-        .bot-message {
+        .assistant-message {
             background-color: #e9e9eb;
             color: #000;
             align-self: flex-start; /* 왼쪽 정렬 */
@@ -55,14 +55,14 @@
             align-self: flex-end; /* 오른쪽 정렬 */
         }
 
-        .chat-form {
+        .user-input-form {
             display: flex;
             padding: 15px;
             border-top: 1px solid #e0e0e0;
             background-color: #f9f9f9;
         }
 
-        .chat-form input {
+        .user-input-form input {
             flex: 1;
             border: 1px solid #ccc;
             border-radius: 20px;
@@ -71,7 +71,7 @@
             margin-right: 10px;
         }
 
-        .chat-form button {
+        .user-input-form button {
             background-color: #007bff;
             color: white;
             border: none;
@@ -82,11 +82,11 @@
             font-size: 1.2rem;
         }
 
-        .chat-form button:hover {
+        .user-input-form button:hover {
             background-color: #0056b3;
         }
 
-        .preset-prompts {
+        .recommended-inputs {
             padding: 10px 15px 5px;
             display: flex;
             flex-wrap: wrap;
@@ -94,7 +94,7 @@
             border-top: 1px solid #e0e0e0;
         }
 
-        .preset-prompt-btn {
+        .recommended-input-btn {
             background-color: #f1f1f1;
             border: none;
             border-radius: 16px;
@@ -104,59 +104,67 @@
             transition: background-color 0.2s ease;
         }
 
-        .preset-prompt-btn:hover {
+        .recommended-input-btn:hover {
             background-color: #e0e0e0;
         }
     </style>
 </head>
 <body>
 
-<div class="chat-container">
-    <div class="chat-messages" id="chatMessages"></div>
-    <div class="preset-prompts" id="presetPrompts"></div>
-    <form class="chat-form" id="chatForm">
-        <label for="chatInput"></label>
-        <input autocomplete="off" id="chatInput" placeholder="메시지를 입력하세요..." type="text">
+<div class="conversation-container">
+    <div class="messages" id="messages"></div>
+    <div class="recommended-inputs" id="recommendedInputs"></div>
+    <form class="user-input-form" id="chatForm">
+        <label for="userInput"></label>
+        <input autocomplete="off" id="userInput" placeholder="메시지를 입력하세요..." type="text">
         <button type="submit">➤</button>
     </form>
 </div>
 <script>
     const chatForm = document.getElementById('chatForm');
     const chatInput = document.getElementById('chatInput');
-    const chatMessages = document.getElementById('chatMessages');
-    const presetPromptsContainer = document.getElementById('presetPrompts'); /* 추가 */
+    const messagesContainer = document.getElementById('messages');
+    const recommendedInputsContainer = document.getElementById('recommendedInputs');
 
     const principal = {
         USER: {name: "USER", className: "message user-message"},
-        BOT: {name: "BOT", className: "message bot-message"}
+        ASSISTANT: {name: "ASSISTANT", className: "message assistant-message"}
     }
 
-    const presetPrompts = [
+    // [수정 3] 변수명을 컨테이너와 의미적으로 맞게 변경했습니다.
+    const recommendedPrompts = [
         '안녕? 자기소개해줘',
         '소프트웨어 개발의 "요구사항"이란 무엇인지 알려줘'
     ]
 
-    presetPrompts.forEach(prompt => {
+    recommendedPrompts.forEach(prompt => {
         const btn = document.createElement('button');
-        btn.className = 'preset-prompt-btn';
+        // [수정 4] CSS의 .recommended-input-btn 클래스명과 일치시켰습니다.
+        btn.className = 'recommended-input-btn';
         btn.textContent = prompt;
         btn.addEventListener('click', () => {
             submit(prompt);
         });
-        presetPromptsContainer.appendChild(btn);
+        // [수정 5] 수정된 컨테이너 변수를 사용했습니다.
+        recommendedInputsContainer.appendChild(btn);
     });
 
     async function submit(prompt) {
         if (!prompt) return;
 
-        // 1. 사용자 메시지 화면에 표시
         createChatMessage(principal.USER).textContent = prompt;
         scrollDown();
 
-        // 2. 봇 응답 스트리밍 처리
-        const botMessage = createChatMessage(principal.BOT);
-        for await (const chunk of generateResponse(prompt)) {
-            botMessage.textContent += chunk;
+        const botMessage = createChatMessage(principal.ASSISTANT);
+        // 서버 응답이 없어도 UI가 멈추지 않도록 예외 처리를 추가하는 것이 좋습니다.
+        try {
+            for await (const chunk of generateResponse(prompt)) {
+                botMessage.textContent += chunk;
+                scrollDown();
+            }
+        } catch (e) {
+            console.error("응답 처리 중 오류 발생:", e);
+            botMessage.textContent += "\n[오류가 발생했습니다]";
             scrollDown();
         }
     }
@@ -164,7 +172,7 @@
     chatForm.addEventListener('submit', function (event) {
         event.preventDefault();
         const prompt = chatInput.value.trim();
-        chatInput.value = ''; // 입력창 비우기
+        chatInput.value = '';
         submit(prompt);
     });
 
@@ -172,26 +180,31 @@
         const message = document.createElement('div');
         message.className = principalType.className;
         message.textContent = '';
-        chatMessages.appendChild(message);
+        // [수정 6] 수정된 메시지 컨테이너 변수를 사용했습니다.
+        messagesContainer.appendChild(message);
         return message;
     }
 
     function scrollDown() {
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
     async function* generateResponse(prompt) {
-        const API_ENDPOINT = 'http://127.0.0.1:8080/api/v1/chat';
+        // [수정 8] API 요청 body 형식을 서버에 맞게 수정했습니다. (이전 코드에는 message: prompt 로 되어있었음)
+        // Spring AI ChatController 기본 형식은 content 와 conversationId 입니다.
+        // 여기서는 간단하게 content 만 보냅니다.
+        const requestBody = {content: prompt, conversationId: "test-conversation-id"};
+        const API_ENDPOINT = 'http://127.0.0.1:8080/api/v1/conversation';
         try {
             const response = await fetch(API_ENDPOINT, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({message: prompt}),
+                body: JSON.stringify(requestBody),
             });
-            if (!response.ok) {
-                yield `죄송합니다. 서버로부터 정상적인 응답을 받지 못했습니다.`;
-                const errorData = await response.json();
-                console.error(`오류가 발생했습니다: ${errorData.message || response.statusText}`)
+            if (!response.ok || !response.body) {
+                const errorText = await response.text();
+                console.error(`서버 오류: ${response.status} ${response.statusText}`, errorText);
+                yield `[오류: ${response.statusText}]`;
                 return;
             }
             const reader = response.body.getReader();
@@ -199,11 +212,11 @@
             while (true) {
                 const {value, done} = await reader.read();
                 if (done) break;
-                yield decoder.decode(value);
+                yield decoder.decode(value, {stream: true});
             }
         } catch (error) {
             console.error('API 요청 실패:', error);
-            yield '죄송합니다. 서버와 통신하는 데 실패했습니다.';
+            yield '[서버와 통신하는 데 실패했습니다.]';
         }
     }
 </script>
