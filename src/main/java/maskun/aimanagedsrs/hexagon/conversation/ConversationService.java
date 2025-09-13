@@ -7,6 +7,7 @@ import maskun.aimanagedsrs.hexagon.conversation.domain.Conversation;
 import maskun.aimanagedsrs.hexagon.conversation.domain.Message;
 import maskun.aimanagedsrs.hexagon.conversation.provided.ConversationFinder;
 import maskun.aimanagedsrs.hexagon.conversation.provided.ConversationResponseGenerator;
+import maskun.aimanagedsrs.hexagon.conversation.required.ConversationRepository;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -15,6 +16,7 @@ import reactor.core.publisher.Flux;
 @RequiredArgsConstructor
 public class ConversationService implements ConversationResponseGenerator {
     private final ConversationFinder finder;
+    private final ConversationRepository conversationRepository;
     private final AssistantClient assistantClient;
 
     @Override
@@ -25,7 +27,12 @@ public class ConversationService implements ConversationResponseGenerator {
 
         final StringBuffer responseBuffer = new StringBuffer();
 
-        Flux<String> responseStream = assistantClient.getResponse(conversation, request.content());
+        Flux<String> responseStream = assistantClient.getResponse(conversation, request.content())
+                .doOnNext(responseBuffer::append)
+                .doOnComplete(() -> {
+                    conversation.addAssistantMessage(responseBuffer.toString());
+                    conversationRepository.save(conversation);
+                });
 
         return new AssistantStreamMessageResponse(conversation.getId(), responseStream);
     }

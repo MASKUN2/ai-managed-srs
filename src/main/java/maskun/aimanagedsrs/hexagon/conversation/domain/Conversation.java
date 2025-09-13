@@ -42,6 +42,12 @@ public class Conversation {
         return message;
     }
 
+    public Message addAssistantMessage(String content) {
+        Message message = of(this, Role.ASSISTANT, content);
+        messages.add(message);
+        return message;
+    }
+
     public Message addNewMessage(Role role, String content) {
         Message message = of(this, role, content);
         messages.add(message);
