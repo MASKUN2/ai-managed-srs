@@ -18,4 +18,5 @@ module maskun.aimanagedsrs {
     requires spring.web;
     requires spring.webmvc;
     requires validation.api;
+    requires maskun.aimanagedsrs;
 }
