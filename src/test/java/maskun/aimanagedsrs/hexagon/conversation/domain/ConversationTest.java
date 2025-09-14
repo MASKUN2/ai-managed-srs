@@ -21,24 +21,24 @@ class ConversationTest {
         Conversation conversation = Conversation.startNew();
         assertThat(conversation.getMessages()).isEmpty();
 
-        var message = conversation.addNewMessage(Message.Role.USER, "some content");
+        var message = conversation.addNewMessage(Conversation.Role.USER, "some content");
         assertThat(conversation.getMessages()).hasSize(1);
         assertThat(conversation.getMessages().getFirst()).isEqualTo(message);
         assertThat(message).satisfies(msg -> {
             assertThat(msg.getId()).isNotNull();
             assertThat(msg.getConversation()).isEqualTo(conversation);
-            assertThat(msg.getRole()).isEqualTo(Message.Role.USER);
+            assertThat(msg.getRole()).isEqualTo(Conversation.Role.USER);
             assertThat(msg.getContent()).isEqualTo("some content");
             assertThat(msg.getCreatedAt()).isNotNull();
         });
 
-        var otherMessage = conversation.addNewMessage(Message.Role.ASSISTANT, "some other content");
+        var otherMessage = conversation.addNewMessage(Conversation.Role.ASSISTANT, "some other content");
         assertThat(conversation.getMessages()).hasSize(2);
         assertThat(conversation.getMessages().getLast()).isEqualTo(otherMessage);
         assertThat(otherMessage).satisfies(msg -> {
             assertThat(msg.getId()).isNotNull();
             assertThat(msg.getConversation()).isEqualTo(conversation);
-            assertThat(msg.getRole()).isEqualTo(Message.Role.ASSISTANT);
+            assertThat(msg.getRole()).isEqualTo(Conversation.Role.ASSISTANT);
             assertThat(msg.getContent()).isEqualTo("some other content");
             assertThat(msg.getCreatedAt()).isNotNull();
         });

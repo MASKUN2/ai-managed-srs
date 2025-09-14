@@ -1,50 +1,41 @@
 package maskun.aimanagedsrs.hexagon.conversation.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import maskun.aimanagedsrs.hexagon.shared.UUIDv7;
 import org.hibernate.proxy.HibernateProxy;
+import org.jspecify.annotations.Nullable;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.domain.Persistable;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import static jakarta.persistence.CascadeType.*;
-
-@Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Conversation {
+@NoArgsConstructor
+@MappedSuperclass
+@EntityListeners(AuditingEntityListener.class)
+public abstract class BaseEntity implements Persistable<UUID> {
 
     @Id
-    private UUID id = UUIDv7.generate();
+    @Column(name = "id")
+    protected UUID id = UUIDv7.generate();
 
-    @OrderBy("createdAt ASC")
-    @OneToMany(mappedBy = "conversation", cascade = {PERSIST, MERGE, REFRESH})
-    private List<Message> messages = new ArrayList<>();
+    @CreatedDate
+    @Column(name = "created_at")
+    protected @Nullable Instant createdAt = null;
 
-    @Column(nullable = false)
-    private Instant createdAt = Instant.now();
+    @LastModifiedDate
+    @Column(name = "last_modified_at")
+    protected @Nullable Instant lastModifiedAt = null;
 
-    public static Conversation startNew() {
-        return new Conversation();
-    }
-
-    public Message addUserMessage(String content) {
-        Message message = UserMessage.of(this);
-        messages.add(message);
-        return message;
-    }
-
-    public Message addAssistantMessage(String content) {
-        Message message = AssistantMessage.of(this);
-        messages.add(message);
-        return message;
-    }
+    @Version
+    @Column(name = "version")
+    protected @Nullable Long version = null;
 
     @Override
     public final boolean equals(Object o) {
@@ -53,8 +44,8 @@ public class Conversation {
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        Conversation that = (Conversation) o;
-        return getId() != null && Objects.equals(getId(), that.getId());
+        BaseEntity message = (BaseEntity) o;
+        return getId() != null && Objects.equals(getId(), message.getId());
     }
 
     @Override
@@ -63,14 +54,15 @@ public class Conversation {
     }
 
     @Override
+    public boolean isNew() {
+        return createdAt == null;
+    }
+
+    @Override
     public String toString() {
         return getClass().getSimpleName() + "(" +
                 "id = " + id + ", " +
-                "createdAt = " + createdAt + ")";
-    }
-
-    public enum Role {
-        USER,
-        ASSISTANT;
+                "createdAt = " + createdAt + ", " +
+                "lastModifiedAt = " + lastModifiedAt + ")";
     }
 }
