@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -14,14 +15,14 @@ import lombok.NoArgsConstructor;
 public abstract class Message extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "conversation_id", updatable = false, foreignKey = @ForeignKey(name = "fk_message_conversation"))
-    protected Conversation conversation;
+    @JoinColumn(name = "conversation_id", foreignKey = @ForeignKey(name = "fk_message_conversation"))
+    protected @Nullable Conversation conversation;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
-    protected String content = "";
+    @Column(columnDefinition = "TEXT")
+    protected @Nullable String content = null;
 
-    protected Message(Conversation conversation) {
-        this.conversation = conversation;
+    public void content(@Nullable String content) {
+        this.content = content;
     }
 }
 

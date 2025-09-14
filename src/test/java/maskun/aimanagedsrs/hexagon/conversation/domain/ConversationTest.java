@@ -17,11 +17,11 @@ class ConversationTest {
     }
 
     @Test
-    void addNewMessage() {
+    void appendMessage() {
         Conversation conversation = Conversation.startNew();
         assertThat(conversation.getMessages()).isEmpty();
 
-        var message = conversation.addNewMessage(Conversation.Role.USER, "some content");
+        var message = conversation.append(Conversation.Role.USER, "some content");
         assertThat(conversation.getMessages()).hasSize(1);
         assertThat(conversation.getMessages().getFirst()).isEqualTo(message);
         assertThat(message).satisfies(msg -> {
@@ -32,7 +32,7 @@ class ConversationTest {
             assertThat(msg.getCreatedAt()).isNotNull();
         });
 
-        var otherMessage = conversation.addNewMessage(Conversation.Role.ASSISTANT, "some other content");
+        var otherMessage = conversation.append(Conversation.Role.ASSISTANT, "some other content");
         assertThat(conversation.getMessages()).hasSize(2);
         assertThat(conversation.getMessages().getLast()).isEqualTo(otherMessage);
         assertThat(otherMessage).satisfies(msg -> {

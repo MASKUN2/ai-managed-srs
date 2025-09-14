@@ -1,27 +1,18 @@
 package maskun.aimanagedsrs.hexagon.conversation.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Getter
-@DiscriminatorValue("USER")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@DiscriminatorValue("USER")
+@Entity
 public class UserMessage extends Message {
 
-    @Column(name = "role", nullable = false, updatable = false, insertable = false)
-    @Enumerated(EnumType.STRING)
-    private Conversation.Role role;
-
-    private UserMessage(Conversation conversation) {
-        super(conversation);
+    public static UserMessage of() {
+        return new UserMessage();
     }
-
-    static UserMessage of(Conversation conversation
-    ) {
-        return new UserMessage(conversation);
-    }
-
 }
