@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DiscriminatorValue("ASSISTANT")
 @Entity
-public class AssistantMessage extends Message {
+public class AssistantMessage extends Message<AssistantMessage> {
 
     public static AssistantMessage of() {
         return new AssistantMessage();

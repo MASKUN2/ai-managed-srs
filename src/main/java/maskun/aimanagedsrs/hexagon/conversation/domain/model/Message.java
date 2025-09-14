@@ -13,18 +13,19 @@ import org.jspecify.annotations.Nullable;
 @Table(name = "message", indexes = @Index(name = "idx_message_created_at", columnList = "created_at"))
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "role", length = 10)
-public abstract class Message extends BaseEntity {
+public abstract class Message<S extends Message<S>> extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "conversation_id", foreignKey = @ForeignKey(name = "fk_message_conversation"))
     protected @Nullable Conversation conversation;
 
     @Column(columnDefinition = "TEXT")
-    protected @Nullable String content = null;
+    protected String content = "";
 
-    public Message content(@Nullable String content) {
+    @SuppressWarnings("unchecked")
+    public S content(String content) {
         this.content = content;
-        return this;
+        return (S) this;
     }
 }
 

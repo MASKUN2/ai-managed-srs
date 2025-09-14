@@ -26,7 +26,7 @@ public class Conversation extends BaseEntity {
         return new Conversation();
     }
 
-    public Message append(Message message) {
+    public <M extends Message> M append(M message) {
         message.conversation = this;
         messages.add(message);
         return message;
