@@ -47,6 +47,8 @@ https://github.com/spring-projects
 | 사용자:User              |                                  |
 | 봇:Assistant           |                                  |
 | 응답을 받다: getResponse   |                                  |
+| 찾다:Find               | 없을 수도 있음                         |
+| 가져오다:Require          | 없어서는 안됨                          |
 
 ### 이슈노트
 

@@ -3,10 +3,10 @@ package maskun.aimanagedsrs.hexagon.conversation.application;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import maskun.aimanagedsrs.hexagon.conversation.UserMessageRequest;
+import maskun.aimanagedsrs.hexagon.conversation.MessageRequest;
+import maskun.aimanagedsrs.hexagon.conversation.domain.AssistantClient;
 import maskun.aimanagedsrs.hexagon.conversation.domain.Conversation;
 import maskun.aimanagedsrs.hexagon.conversation.domain.Message;
-import maskun.aimanagedsrs.hexagon.conversation.provided.ChatAssistant;
 import maskun.aimanagedsrs.hexagon.conversation.provided.ConversationFinder;
 import maskun.aimanagedsrs.hexagon.conversation.provided.ConversationInitiator;
 import maskun.aimanagedsrs.hexagon.conversation.required.ConversationRepository;
@@ -16,14 +16,14 @@ import reactor.core.publisher.Flux;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ConversationAssistant implements ChatAssistant, ConversationInitiator {
+public class ConversationAssistant implements maskun.aimanagedsrs.hexagon.conversation.provided.ConversationAssistant, ConversationInitiator {
     private final ConversationFinder finder;
     private final ConversationRepository conversationRepository;
     private final AssistantClient assistantClient;
 
     @Override
     @Transactional
-    public AssistantStreamMessageResponse getResponse(UserMessageRequest request) {
+    public StreamingMessageResponse getStreamResponse(MessageRequest request) {
         Conversation conversation = finder.require(request.conversationId());
         Message message = conversation.addUserMessage(request.content());
 
@@ -36,7 +36,7 @@ public class ConversationAssistant implements ChatAssistant, ConversationInitiat
                     conversationRepository.save(conversation);
                 });
 
-        return new AssistantStreamMessageResponse(conversation.getId(), responseStream);
+        return new StreamingMessageResponse(conversation.getId(), responseStream);
     }
 
     @Override

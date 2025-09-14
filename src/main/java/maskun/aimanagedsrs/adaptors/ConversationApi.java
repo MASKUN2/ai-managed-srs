@@ -1,8 +1,8 @@
 package maskun.aimanagedsrs.adaptors;
 
 import lombok.RequiredArgsConstructor;
-import maskun.aimanagedsrs.hexagon.conversation.UserMessageRequest;
-import maskun.aimanagedsrs.hexagon.conversation.provided.ChatAssistant;
+import maskun.aimanagedsrs.hexagon.conversation.MessageRequest;
+import maskun.aimanagedsrs.hexagon.conversation.provided.ConversationAssistant;
 import maskun.aimanagedsrs.hexagon.conversation.provided.ConversationInitiator;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +17,7 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class ConversationApi {
     static final String API_URL = "/api/v1/conversation";
-    private final ChatAssistant responseGenerator;
+    private final ConversationAssistant responseGenerator;
     private final ConversationInitiator initiator;
 
     @PostMapping(
@@ -25,8 +25,8 @@ public class ConversationApi {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.TEXT_PLAIN_VALUE
     )
-    public Flux<String> send(@Valid @RequestBody UserMessageRequest request) {
-        return responseGenerator.getResponse(request).getStream();
+    public Flux<String> send(@Valid @RequestBody MessageRequest request) {
+        return responseGenerator.getStreamResponse(request).getStream();
     }
 
     @PostMapping(API_URL)
