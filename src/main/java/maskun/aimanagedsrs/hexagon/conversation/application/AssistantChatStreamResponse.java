@@ -5,12 +5,12 @@ import maskun.aimanagedsrs.hexagon.conversation.domain.model.Conversation;
 import reactor.core.publisher.Flux;
 
 @Getter
-public class StreamingMessageResponse {
+public class AssistantChatStreamResponse {
     private final Conversation conversation;
-    private final Flux<String> stream;
+    private final Flux<String> contentStream;
 
-    public StreamingMessageResponse(Conversation conversation, Flux<String> stream) {
+    public AssistantChatStreamResponse(Conversation conversation, Flux<String> contentStream) {
         this.conversation = conversation;
-        this.stream = stream;
+        this.contentStream = contentStream;
     }
 }

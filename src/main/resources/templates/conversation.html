@@ -122,9 +122,9 @@
 </div>
 <script>
     const chatForm = document.getElementById('chatForm');
-    const chatInput = document.getElementById('userInput');
-    const messagesContainer = document.getElementById('messages');
-    const recommendedInputsContainer = document.getElementById('recommendedInputs');
+    const userMessageInputForm = document.getElementById('userInput');
+    const messageBalloonContainer = document.getElementById('messages');
+    const recommendedUserChatMessagesContainer = document.getElementById('recommendedInputs');
 
     const principal = {
         USER: {name: "USER", className: "message user-message"},
@@ -139,111 +139,95 @@
     })
 
     async function startNewConversation() {
-        const API_ENDPOINT = '/api/v1/conversation'; // 상대 경로 사용
+        const API_PATH = '/api/v1/conversation';
 
         try {
-            const response = await fetch(API_ENDPOINT, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-                // Controller의 startNew() 메소드는 @RequestBody가 없으므로 body는 보내지 않습니다.
-            });
+            const response = await fetch(API_PATH, {method: 'POST', headers: {'Content-Type': 'application/json'}});
 
-            // HTTP 상태 코드가 200-299 범위가 아닐 경우 에러 처리
             if (!response.ok) {
-                // 서버가 보낸 에러 메시지가 있다면 포함시키고, 없다면 기본 상태 메시지를 사용합니다.
                 const errorData = await response.json().catch(() => ({message: response.statusText}));
-                throw new Error(`Failed to start a new conversation: ${errorData.message || response.statusText}`);
+                throw new Error(`오류 발생: ${errorData.message || response.statusText}`);
             }
 
-            // 성공적인 응답을 JSON 객체로 파싱하여 반환
             return await response.json();
 
         } catch (error) {
-            // 네트워크 에러 또는 위에서 던진 에러를 처리
-            console.error('Error starting new conversation:', error);
-            // 에러를 다시 던져서 호출한 쪽에서 추가적인 처리를 할 수 있도록 함
+            console.error('오류 발생:', error);
             throw error;
         }
     }
 
-    // [수정 3] 변수명을 컨테이너와 의미적으로 맞게 변경했습니다.
-    const recommendedPrompts = [
+    const recommendedUserChatMessages = [
         '안녕? 자기소개해줘',
-        '소프트웨어 개발의 "요구사항"이란 무엇인지 알려줘'
+        '사가현 꼭 가봐야할 곳들 알려줘'
     ]
 
-    recommendedPrompts.forEach(prompt => {
+    recommendedUserChatMessages.forEach(message => {
         const btn = document.createElement('button');
-        // [수정 4] CSS의 .recommended-input-btn 클래스명과 일치시켰습니다.
-        btn.className = 'recommended-input-btn';
-        btn.textContent = prompt;
+        btn.className = 'recommended-user-chat-message-btn';
+        btn.textContent = message;
         btn.addEventListener('click', () => {
-            submit(prompt);
+            submit(message);
         });
-        // [수정 5] 수정된 컨테이너 변수를 사용했습니다.
-        recommendedInputsContainer.appendChild(btn);
+        recommendedUserChatMessagesContainer.appendChild(btn);
     });
 
-    async function submit(prompt) {
-        if (!prompt) return;
+    async function submit(submittedMessageContent) {
+        if (!submittedMessageContent) return;
 
-        createChatMessage(principal.USER).textContent = prompt;
+        let userMessageBalloon = renderNewMessageBalloon(principal.USER);
+        userMessageBalloon.textContent = submittedMessageContent;
         scrollDown();
 
-        const botMessage = createChatMessage(principal.ASSISTANT);
-        // 서버 응답이 없어도 UI가 멈추지 않도록 예외 처리를 추가하는 것이 좋습니다.
+        const botMessageBalloon = renderNewMessageBalloon(principal.ASSISTANT);
         try {
-            for await (const chunk of generateResponse(prompt)) {
-                botMessage.textContent += chunk;
+            for await (const chunk of getAssistantStreamResponse(submittedMessageContent)) {
+                botMessageBalloon.textContent += chunk;
                 scrollDown();
             }
         } catch (e) {
             console.error("응답 처리 중 오류 발생:", e);
-            botMessage.textContent += "\n[오류가 발생했습니다]";
+            botMessageBalloon.textContent += "\n[오류가 발생했습니다]";
             scrollDown();
         }
     }
 
     chatForm.addEventListener('submit', function (event) {
         event.preventDefault();
-        const prompt = chatInput.value.trim();
-        chatInput.value = '';
-        submit(prompt);
+        const content = userMessageInputForm.value.trim();
+        userMessageInputForm.value = '';
+        submit(content);
     });
 
-    function createChatMessage(principalType) {
-        const message = document.createElement('div');
-        message.className = principalType.className;
-        message.textContent = '';
-        // [수정 6] 수정된 메시지 컨테이너 변수를 사용했습니다.
-        messagesContainer.appendChild(message);
-        return message;
+    function renderNewMessageBalloon(principalType) {
+        const messageBalloon = document.createElement('div');
+        messageBalloon.className = principalType.className;
+        messageBalloon.textContent = '';
+        messageBalloonContainer.appendChild(messageBalloon);
+        return messageBalloon;
     }
 
     function scrollDown() {
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        messageBalloonContainer.scrollTop = messageBalloonContainer.scrollHeight;
     }
 
-    async function* generateResponse(prompt) {
-        // [수정 8] API 요청 body 형식을 서버에 맞게 수정했습니다. (이전 코드에는 message: prompt 로 되어있었음)
-        // Spring AI ChatController 기본 형식은 content 와 conversationId 입니다.
-        // 여기서는 간단하게 content 만 보냅니다.
-        const requestBody = {content: prompt, conversationId: conversationId};
-        const API_ENDPOINT = 'http://127.0.0.1:8080/api/v1/conversation/messages';
+    async function* getAssistantStreamResponse(chatRequestMessageContent) {
+        const requestBody = {content: chatRequestMessageContent, conversationId: conversationId};
+        const API_PATH = '/api/v1/conversation/messages';
         try {
-            const response = await fetch(API_ENDPOINT, {
+            const response = await fetch(API_PATH, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(requestBody),
+                body: JSON.stringify(requestBody)
             });
+
             if (!response.ok || !response.body) {
                 const errorText = await response.text();
                 console.error(`서버 오류: ${response.status} ${response.statusText}`, errorText);
                 yield `[오류: ${response.statusText}]`;
                 return;
             }
+
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             while (true) {
@@ -256,6 +240,7 @@
             yield '[서버와 통신하는 데 실패했습니다.]';
         }
     }
+
 </script>
 
 </body>
