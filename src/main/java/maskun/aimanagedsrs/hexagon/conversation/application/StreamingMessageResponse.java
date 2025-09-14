@@ -1,17 +1,16 @@
 package maskun.aimanagedsrs.hexagon.conversation.application;
 
 import lombok.Getter;
+import maskun.aimanagedsrs.hexagon.conversation.domain.model.Conversation;
 import reactor.core.publisher.Flux;
-
-import java.util.UUID;
 
 @Getter
 public class StreamingMessageResponse {
-    private final UUID conversationId;
+    private final Conversation conversation;
     private final Flux<String> stream;
 
-    public StreamingMessageResponse(UUID conversationId, Flux<String> stream) {
-        this.conversationId = conversationId;
+    public StreamingMessageResponse(Conversation conversation, Flux<String> stream) {
+        this.conversation = conversation;
         this.stream = stream;
     }
 }

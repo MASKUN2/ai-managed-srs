@@ -1,5 +1,6 @@
 package maskun.aimanagedsrs.hexagon.conversation.domain;
 
+import maskun.aimanagedsrs.hexagon.conversation.domain.model.Conversation;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

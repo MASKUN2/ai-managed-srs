@@ -1,9 +1,8 @@
-package maskun.aimanagedsrs.hexagon.conversation.domain;
+package maskun.aimanagedsrs.hexagon.shared;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import maskun.aimanagedsrs.hexagon.shared.UUIDv7;
 import org.hibernate.proxy.HibernateProxy;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.CreatedDate;

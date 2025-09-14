@@ -1,6 +1,6 @@
 package maskun.aimanagedsrs.adaptors;
 
-import maskun.aimanagedsrs.hexagon.conversation.domain.Conversation;
+import maskun.aimanagedsrs.hexagon.conversation.domain.model.Conversation;
 
 import java.util.UUID;
 

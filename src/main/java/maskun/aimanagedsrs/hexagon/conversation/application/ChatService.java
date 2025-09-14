@@ -4,16 +4,16 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import maskun.aimanagedsrs.hexagon.conversation.MessageRequest;
-import maskun.aimanagedsrs.hexagon.conversation.domain.Conversation;
 import maskun.aimanagedsrs.hexagon.conversation.domain.ConversationService;
-import maskun.aimanagedsrs.hexagon.conversation.provided.ConversationAssistant;
+import maskun.aimanagedsrs.hexagon.conversation.domain.model.Conversation;
 import maskun.aimanagedsrs.hexagon.conversation.provided.ConversationFinder;
+import maskun.aimanagedsrs.hexagon.conversation.provided.StreamingAssistantResponseGenerator;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ChatService implements ConversationAssistant {
+public class ChatService implements StreamingAssistantResponseGenerator {
     private final ConversationFinder finder;
     private final ConversationService conversationService;
 
@@ -24,7 +24,7 @@ public class ChatService implements ConversationAssistant {
 
         var responseStream = conversationService.converse(conversation, request.content());
 
-        return new StreamingMessageResponse(conversation.getId(), responseStream);
+        return new StreamingMessageResponse(conversation, responseStream);
     }
 
 }

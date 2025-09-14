@@ -2,7 +2,7 @@ package maskun.aimanagedsrs.hexagon.conversation.application;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import maskun.aimanagedsrs.hexagon.conversation.domain.Conversation;
+import maskun.aimanagedsrs.hexagon.conversation.domain.model.Conversation;
 import maskun.aimanagedsrs.hexagon.conversation.provided.ConversationInitiator;
 import maskun.aimanagedsrs.hexagon.conversation.required.ConversationRepository;
 import org.springframework.stereotype.Service;

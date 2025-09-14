@@ -1,9 +1,10 @@
-package maskun.aimanagedsrs.hexagon.conversation.domain;
+package maskun.aimanagedsrs.hexagon.conversation.domain.model;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import maskun.aimanagedsrs.hexagon.shared.BaseEntity;
 import org.jspecify.annotations.Nullable;
 
 @Getter
@@ -21,8 +22,9 @@ public abstract class Message extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     protected @Nullable String content = null;
 
-    public void content(@Nullable String content) {
+    public Message content(@Nullable String content) {
         this.content = content;
+        return this;
     }
 }
 

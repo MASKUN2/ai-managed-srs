@@ -1,4 +1,4 @@
-package maskun.aimanagedsrs.hexagon.conversation.domain;
+package maskun.aimanagedsrs.hexagon.conversation.domain.model;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -6,14 +6,13 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@DiscriminatorValue("ASSISTANT")
+@DiscriminatorValue("USER")
 @Entity
-public class AssistantMessage extends Message {
+public class UserMessage extends Message {
 
-    public static AssistantMessage of() {
-        return new AssistantMessage();
+    public static UserMessage of() {
+        return new UserMessage();
     }
 }
