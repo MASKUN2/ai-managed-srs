@@ -3,19 +3,14 @@ package maskun.aimanagedsrs.hexagon.conversation.domain;
 import lombok.RequiredArgsConstructor;
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.AssistantMessage;
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.Conversation;
-import maskun.aimanagedsrs.hexagon.conversation.required.ConversationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import reactor.core.publisher.SignalType;
-import reactor.core.scheduler.Schedulers;
 
 @Service
 @RequiredArgsConstructor
 public class ResponseRecorderImpl implements ResponseRecorder {
-
-    private final ConversationRepository conversationRepository;
     private final TransactionalOperator transactionalOperator;
 
     @Override
@@ -33,14 +28,5 @@ public class ResponseRecorderImpl implements ResponseRecorder {
         }
         AssistantMessage assistantMessage = AssistantMessage.of().content(buffer.toString());
         conversation.append(assistantMessage);
-
-        Mono<Void> saveOperation = Mono.fromRunnable(() -> {
-            conversationRepository.save(conversation);
-        });
-
-        saveOperation
-                .subscribeOn(Schedulers.boundedElastic())
-                .as(transactionalOperator::transactional)
-                .subscribe();
     }
 }
