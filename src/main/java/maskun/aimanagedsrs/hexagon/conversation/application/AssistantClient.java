@@ -1,4 +1,4 @@
-package maskun.aimanagedsrs.hexagon.conversation;
+package maskun.aimanagedsrs.hexagon.conversation.application;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package maskun.aimanagedsrs.hexagon.conversation;
+package maskun.aimanagedsrs.hexagon.conversation.application;
 
 import lombok.Getter;
 import reactor.core.publisher.Flux;
