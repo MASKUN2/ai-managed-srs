@@ -15,6 +15,7 @@ public class ConversationStarter implements maskun.aimanagedsrs.hexagon.conversa
     @Override
     @Transactional
     public Conversation startNew() {
-        return conversationRepository.save(Conversation.startNew());
+        Conversation newConversation = Conversation.startNew();
+        return conversationRepository.save(newConversation);
     }
 }

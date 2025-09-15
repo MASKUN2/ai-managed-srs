@@ -12,11 +12,11 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class ConversationQueryService implements ConversationFinder {
-    private final ConversationRepository repository;
+    private final ConversationRepository conversationRepository;
 
     @Override
     public Optional<Conversation> find(UUID id) {
-        return repository.findById(id);
+        return conversationRepository.findById(id);
     }
 
     @Override

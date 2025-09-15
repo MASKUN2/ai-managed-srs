@@ -1,7 +1,8 @@
-package maskun.aimanagedsrs.hexagon.conversation.domain;
+package maskun.aimanagedsrs.hexagon.conversation.application;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import maskun.aimanagedsrs.hexagon.conversation.domain.ChatAssistant;
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.Conversation;
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.UserMessage;
 import org.springframework.ai.chat.client.ChatClient;
@@ -11,7 +12,7 @@ import reactor.core.publisher.Flux;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ChatAssistantImpl implements ChatAssistant {
+public class ChatAssistantClient implements ChatAssistant {
 
     private final ChatClient client;
 

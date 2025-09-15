@@ -15,20 +15,10 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class ChatServiceImpl implements ChatService {
+public class ChatServiceFacade implements ChatService {
     private final ChatAssistant chatAssistant;
     private final ConversationFinder conversationFinder;
     private final ConversationRepository conversationRepository;
-
-    private static AssistantMessage addEmptyAssistantMessage(Conversation conversation) {
-        AssistantMessage emptyMessage = AssistantMessage.of();
-        return conversation.append(emptyMessage);
-    }
-
-    private static UserMessage addUserMessage(Conversation conversation, String request) {
-        UserMessage message = UserMessage.of().content(request);
-        return conversation.append(message);
-    }
 
     @Override
     public Flux<String> chat(UUID conversationId, String request) {
@@ -47,5 +37,15 @@ public class ChatServiceImpl implements ChatService {
                     emptyAssistantMessage.content(buffer.toString());
                     conversationRepository.save(conversation);
                 });
+    }
+
+    private static UserMessage addUserMessage(Conversation conversation, String request) {
+        UserMessage message = UserMessage.of().content(request);
+        return conversation.append(message);
+    }
+
+    private static AssistantMessage addEmptyAssistantMessage(Conversation conversation) {
+        AssistantMessage emptyMessage = AssistantMessage.of();
+        return conversation.append(emptyMessage);
     }
 }
