@@ -11,12 +11,12 @@ import reactor.core.publisher.Flux;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AssistantClientImpl implements AssistantClient {
+public class ChatAssistantImpl implements ChatAssistant {
 
     private final ChatClient client;
 
     @Override
-    public Flux<String> getStreamResponse(Conversation conversation, UserMessage message) {
+    public Flux<String> response(Conversation conversation, UserMessage message) {
         return client.prompt()
                 .user(message.getContent())
                 .stream()

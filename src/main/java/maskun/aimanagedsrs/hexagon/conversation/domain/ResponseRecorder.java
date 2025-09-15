@@ -6,4 +6,5 @@ import reactor.core.publisher.Flux;
 public interface ResponseRecorder {
 
     Flux<String> record(Flux<String> streamResponse, Conversation conversation);
+
 }

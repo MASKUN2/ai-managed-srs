@@ -4,6 +4,6 @@ import maskun.aimanagedsrs.hexagon.conversation.domain.model.Conversation;
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.UserMessage;
 import reactor.core.publisher.Flux;
 
-public interface AssistantClient {
-    Flux<String> getStreamResponse(Conversation conversation, UserMessage message);
+public interface ChatAssistant {
+    Flux<String> response(Conversation conversation, UserMessage message);
 }

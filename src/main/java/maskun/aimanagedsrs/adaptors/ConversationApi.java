@@ -2,9 +2,8 @@ package maskun.aimanagedsrs.adaptors;
 
 import lombok.RequiredArgsConstructor;
 import maskun.aimanagedsrs.hexagon.conversation.UserChatRequestMessage;
-import maskun.aimanagedsrs.hexagon.conversation.application.AssistantChatStreamResponse;
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.Conversation;
-import maskun.aimanagedsrs.hexagon.conversation.provided.Assistant;
+import maskun.aimanagedsrs.hexagon.conversation.provided.ChatService;
 import maskun.aimanagedsrs.hexagon.conversation.provided.ConversationStarter;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +21,7 @@ public class ConversationApi {
     static final String MESSAGE_PATH = BASE_PATH + "/messages";
 
     private final ConversationStarter conversationStarter;
-    private final Assistant assistant;
+    private final ChatService chatService;
 
     @PostMapping(BASE_PATH)
     public ResponseEntity<ConversationResponse> startNewConversation() {
@@ -35,8 +34,6 @@ public class ConversationApi {
     @PostMapping(path = MESSAGE_PATH, consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.TEXT_PLAIN_VALUE)
     public Flux<String> getAssistantStreamResponse(@Valid @RequestBody UserChatRequestMessage requestMessage) {
-        AssistantChatStreamResponse streamResponse = assistant.response(requestMessage);
-
-        return streamResponse.getContentStream();
+        return chatService.chat(requestMessage.conversationId(), requestMessage.content());
     }
 }
