@@ -1,4 +1,4 @@
-package maskun.aimanagedsrs.adaptors;
+package maskun.aimanagedsrs.adaptors.conversation.dto;
 
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.Conversation;
 

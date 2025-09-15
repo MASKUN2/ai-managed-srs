@@ -1,4 +1,4 @@
-package maskun.aimanagedsrs.adaptors;
+package maskun.aimanagedsrs.adaptors.conversation.ui;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
