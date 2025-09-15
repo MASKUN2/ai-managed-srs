@@ -13,7 +13,7 @@ import org.jspecify.annotations.Nullable;
 @Table(name = "message", indexes = @Index(name = "idx_message_created_at", columnList = "created_at"))
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "role", length = 10)
-public abstract class Message<S extends Message<S>> extends BaseEntity {
+public abstract class Message<M extends Message<M>> extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "conversation_id", foreignKey = @ForeignKey(name = "fk_message_conversation"))
@@ -23,9 +23,9 @@ public abstract class Message<S extends Message<S>> extends BaseEntity {
     protected String content = "";
 
     @SuppressWarnings("unchecked")
-    public S content(String content) {
+    public M content(String content) {
         this.content = content;
-        return (S) this;
+        return (M) this;
     }
 }
 
