@@ -43,10 +43,9 @@ public class ChatServiceImpl implements ChatService {
 
         return streamResponse
                 .doOnNext(buffer::append)
-                .doOnComplete(() -> {
+                .doFinally(signalType -> {
                     emptyAssistantMessage.content(buffer.toString());
                     conversationRepository.save(conversation);
                 });
-
     }
 }
