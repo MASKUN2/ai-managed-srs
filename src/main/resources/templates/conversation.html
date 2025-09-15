@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Chat Client</title>
+    <title>Conversation</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -94,7 +94,6 @@
             border-top: 1px solid #e0e0e0;
         }
 
-        /* [수정] JavaScript에서 사용하는 클래스 이름인 'recommended-user-chat-message-btn'으로 변경했습니다. */
         .recommended-user-chat-message-btn {
             background-color: #f1f1f1;
             border: none;
@@ -105,7 +104,6 @@
             transition: background-color 0.2s ease;
         }
 
-        /* [수정] 위 클래스 이름 변경에 맞춰 hover 선택자도 변경했습니다. */
         .recommended-user-chat-message-btn:hover {
             background-color: #e0e0e0;
         }
@@ -148,7 +146,7 @@
     });
 
     async function startNewConversation() {
-        const API_PATH = '/api/v1/conversation';
+        const API_PATH = '/api/v1/conversations';
         const response = await fetch(API_PATH, {method: 'POST', headers: {'Content-Type': 'application/json'}});
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({message: response.statusText}));
@@ -218,8 +216,8 @@
     }
 
     async function* getAssistantStreamResponse(chatRequestMessageContent) {
-        const requestBody = {content: chatRequestMessageContent, conversationId: conversationId};
-        const API_PATH = '/api/v1/conversation/messages';
+        const requestBody = {content: chatRequestMessageContent};
+        const API_PATH = `/api/v1/conversations/${conversationId}/messages`;
         try {
             const response = await fetch(API_PATH, {
                 method: 'POST',

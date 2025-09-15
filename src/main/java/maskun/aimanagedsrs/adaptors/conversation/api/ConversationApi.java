@@ -8,10 +8,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static maskun.aimanagedsrs.adaptors.shared.API.PATH.CONVERSATIONS;
+import static maskun.aimanagedsrs.adaptors.shared.API.PATH.VERSION_1;
+
 @RequiredArgsConstructor
 @RestController
 public class ConversationApi {
-    static final String BASE_PATH = "/api/v1/conversation";
+    static final String BASE_PATH = VERSION_1 + CONVERSATIONS;
 
     private final ConversationStarter conversationStarter;
 
