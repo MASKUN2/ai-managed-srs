@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DiscriminatorValue("ASSISTANT")
 @Entity
-public class AssistantChatMessage extends ChatMessage<AssistantChatMessage> {
+public class AssistantChatMessage extends ChatMessage {
 
     public static AssistantChatMessage of() {
         return new AssistantChatMessage();
