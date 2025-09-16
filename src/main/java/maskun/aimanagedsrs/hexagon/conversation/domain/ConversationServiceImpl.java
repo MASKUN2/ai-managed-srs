@@ -23,7 +23,7 @@ public class ConversationServiceImpl implements ConversationService {
     @Override
     public Flux<String> chat(UUID conversationId, String request) {
         var conversation = conversationFinder.require(conversationId);
-        conversation.addUserMessage(request);
+        conversation.addUserChat(request);
         conversationRepository.save(conversation);
 
         log.info("thread: " + Thread.currentThread() + "collected: " + request);
@@ -35,7 +35,7 @@ public class ConversationServiceImpl implements ConversationService {
                 .collect(Collectors.joining())
                 .subscribe(x -> {
                     System.out.println("thread: " + Thread.currentThread() + "collected: " + x);
-                    conversation.addAssistantMessage(x);
+                    conversation.addAssistantChat(x);
                     conversationRepository.save(conversation);
                 });
 
@@ -46,7 +46,7 @@ public class ConversationServiceImpl implements ConversationService {
     @Transactional
     public void addNewUserMessage(UUID conversationId, String request) {
         var conversation = conversationFinder.require(conversationId);
-        conversation.addUserMessage(request);
+        conversation.addUserChat(request);
         conversationRepository.save(conversation);
     }
 
@@ -57,7 +57,7 @@ public class ConversationServiceImpl implements ConversationService {
         response.doOnSubscribe(s -> log.info("addNewAssistantMessage : thread: " + Thread.currentThread() + "subscribed to assistant stream"))
                 .doOnNext(buffer::append)
                 .doOnComplete(() -> {
-                    conversation.addAssistantMessage(buffer.toString());
+                    conversation.addAssistantChat(buffer.toString());
                     conversationRepository.save(conversation);
                 }).subscribe();
     }
@@ -65,7 +65,7 @@ public class ConversationServiceImpl implements ConversationService {
     @Transactional
     public void addNewAssistantMessage(UUID conversationId, String response) {
         var conversation = conversationFinder.require(conversationId);
-        conversation.addAssistantMessage(response);
+        conversation.addAssistantChat(response);
         conversationRepository.save(conversation);
     }
 

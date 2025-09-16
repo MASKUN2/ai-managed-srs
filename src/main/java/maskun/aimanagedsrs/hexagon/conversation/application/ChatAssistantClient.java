@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import maskun.aimanagedsrs.hexagon.conversation.domain.ChatAssistant;
 import maskun.aimanagedsrs.hexagon.conversation.domain.ConversationService;
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.Conversation;
-import maskun.aimanagedsrs.hexagon.conversation.domain.model.UserMessage;
+import maskun.aimanagedsrs.hexagon.conversation.domain.model.UserChatMessage;
 import maskun.aimanagedsrs.hexagon.conversation.provided.ConversationFinder;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ public class ChatAssistantClient implements ChatAssistant {
     private final ChatClient client;
 
     @Override
-    public Flux<String> response(Conversation conversation, UserMessage message) {
+    public Flux<String> response(Conversation conversation, UserChatMessage message) {
         return client.prompt()
                 .user(message.getContent())
                 .stream()

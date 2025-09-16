@@ -20,25 +20,25 @@ public class Conversation extends BaseEntity {
 
     @OrderBy("createdAt ASC")
     @OneToMany(mappedBy = "conversation", cascade = {PERSIST, MERGE, REFRESH})
-    private List<Message> messages = new ArrayList<>();
+    private List<ChatMessage> chatMessages = new ArrayList<>();
 
     public static Conversation startNew() {
         return new Conversation();
     }
 
-    public <M extends Message<M>> M append(M message) {
+    public ChatMessage append(ChatMessage message) {
         message.conversation = this;
-        messages.add(message);
+        chatMessages.add(message);
         return message;
     }
 
-    public UserMessage addUserMessage(String content) {
-        UserMessage message = UserMessage.of().content(content);
+    public ChatMessage addUserChat(String content) {
+        ChatMessage message = UserChatMessage.of().content(content);
         return append(message);
     }
 
-    public AssistantMessage addAssistantMessage(String content) {
-        AssistantMessage assistantMessage = AssistantMessage.of().content(content);
+    public ChatMessage addAssistantChat(String content) {
+        ChatMessage assistantMessage = AssistantChatMessage.of().content(content);
         return append(assistantMessage);
     }
 }

@@ -10,10 +10,10 @@ import org.jspecify.annotations.Nullable;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "message", indexes = @Index(name = "idx_message_created_at", columnList = "created_at"))
+@Table(name = "chat_message", indexes = @Index(name = "idx_chat_message_created_at", columnList = "created_at"))
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "role", length = 10)
-public abstract class Message<M extends Message<M>> extends BaseEntity {
+public abstract class ChatMessage extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "conversation_id", foreignKey = @ForeignKey(name = "fk_message_conversation"))
@@ -22,10 +22,10 @@ public abstract class Message<M extends Message<M>> extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     protected String content = "";
 
-    @SuppressWarnings("unchecked")
-    public M content(String content) {
+
+    public ChatMessage content(String content) {
         this.content = content;
-        return (M) this;
+        return this;
     }
 }
 

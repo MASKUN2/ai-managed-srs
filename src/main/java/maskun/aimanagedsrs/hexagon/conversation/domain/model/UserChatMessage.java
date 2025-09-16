@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DiscriminatorValue("USER")
 @Entity
-public class UserMessage extends Message<UserMessage> {
+public class UserChatMessage extends ChatMessage<UserChatMessage> {
 
-    public static UserMessage of() {
-        return new UserMessage();
+    public static UserChatMessage of() {
+        return new UserChatMessage();
     }
 }

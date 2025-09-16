@@ -1,9 +1,10 @@
 package maskun.aimanagedsrs.hexagon.conversation.domain;
 
 import lombok.RequiredArgsConstructor;
-import maskun.aimanagedsrs.hexagon.conversation.domain.model.AssistantMessage;
+import maskun.aimanagedsrs.hexagon.conversation.domain.model.AssistantChatMessage;
+import maskun.aimanagedsrs.hexagon.conversation.domain.model.ChatMessage;
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.Conversation;
-import maskun.aimanagedsrs.hexagon.conversation.domain.model.UserMessage;
+import maskun.aimanagedsrs.hexagon.conversation.domain.model.UserChatMessage;
 import maskun.aimanagedsrs.hexagon.conversation.provided.ConversationFinder;
 import maskun.aimanagedsrs.hexagon.conversation.required.ConversationRepository;
 import org.springframework.ai.chat.messages.Message;
@@ -32,12 +33,12 @@ public class ChatHistoryImpl implements ChatHistory {
 
     }
 
-    private maskun.aimanagedsrs.hexagon.conversation.domain.model.Message MapToMessage(Message message) {
+    private ChatMessage MapToMessage(Message message) {
         MessageType messageType = message.getMessageType();
 
-        maskun.aimanagedsrs.hexagon.conversation.domain.model.Message msg = switch (messageType) {
-            case USER -> UserMessage.of();
-            case ASSISTANT -> AssistantMessage.of();
+        ChatMessage msg = switch (messageType) {
+            case USER -> UserChatMessage.of();
+            case ASSISTANT -> AssistantChatMessage.of();
             default -> throw new IllegalArgumentException("Unsupported message type: " + messageType);
         };
 
