@@ -29,14 +29,6 @@ import reactor.core.scheduler.Scheduler;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Memory is retrieved added as a collection of messages to the prompt
- *
- * @author Christian Tzolov
- * @author Mark Pollack
- * @author Thomas Vitale
- * @since 1.0.0
- */
 public final class ChatHistoryAdvisor implements BaseChatMemoryAdvisor {
 
     private final ChatHistory chatHistory;

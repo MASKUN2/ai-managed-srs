@@ -1,52 +1,46 @@
 package maskun.aimanagedsrs.hexagon.conversation.application;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import maskun.aimanagedsrs.hexagon.conversation.domain.ChatAssistant;
-import maskun.aimanagedsrs.hexagon.conversation.domain.ConversationService;
-import maskun.aimanagedsrs.hexagon.conversation.domain.model.Conversation;
-import maskun.aimanagedsrs.hexagon.conversation.domain.model.UserChatMessage;
-import maskun.aimanagedsrs.hexagon.conversation.provided.ConversationFinder;
+import maskun.aimanagedsrs.hexagon.conversation.domain.ChatHistory;
+import maskun.aimanagedsrs.hexagon.conversation.domain.ChatHistoryAdvisor;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.memory.ChatMemoryRepository;
+import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
-import java.util.UUID;
-
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ChatAssistantClient implements ChatAssistant {
-    private final ConversationFinder conversationFinder;
 
     private final ChatClient client;
 
-    @Override
-    public Flux<String> response(Conversation conversation, UserChatMessage message) {
-        return client.prompt()
-                .user(message.getContent())
-                .stream()
-                .content();
+    public ChatAssistantClient(ChatClient.Builder builder, ChatMemoryRepository chatMemoryRepository,
+                               ChatHistory chatHistory) {
+        MessageWindowChatMemory chatMemory = MessageWindowChatMemory.builder()
+                .chatMemoryRepository(chatMemoryRepository)
+                .maxMessages(4)
+                .build();
+
+        this.client = builder
+                .defaultAdvisors(
+                        MessageChatMemoryAdvisor.builder(chatMemory).build(),
+                        ChatHistoryAdvisor.builder(chatHistory).build(),
+                        new SimpleLoggerAdvisor()
+                )
+                .build();
     }
 
     @Override
-    public Flux<String> response(UUID conversationId, String request) {
+    public Flux<String> response(String conversationId, String request) {
         return client.prompt()
+                .advisors(advisorSpec -> advisorSpec.param(ChatMemory.CONVERSATION_ID, conversationId))
                 .user(request)
                 .stream()
                 .content();
-    }
-
-    @Override
-    public Flux<String> response(UUID conversationId, String request, ConversationService conversationService) {
-        Flux<String> cached = client.prompt()
-                .user(request)
-                .stream()
-                .content()
-                .cache();
-
-        conversationService.addNewAssistantMessage(conversationId, cached);
-
-        return cached;
     }
 }

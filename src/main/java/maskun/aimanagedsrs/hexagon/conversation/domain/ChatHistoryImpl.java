@@ -3,12 +3,14 @@ package maskun.aimanagedsrs.hexagon.conversation.domain;
 import lombok.RequiredArgsConstructor;
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.AssistantChatMessage;
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.ChatMessage;
-import maskun.aimanagedsrs.hexagon.conversation.domain.model.Conversation;
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.UserChatMessage;
 import maskun.aimanagedsrs.hexagon.conversation.provided.ConversationFinder;
 import maskun.aimanagedsrs.hexagon.conversation.required.ConversationRepository;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.MessageType;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,17 +22,22 @@ import java.util.UUID;
 public class ChatHistoryImpl implements ChatHistory {
     private final ConversationFinder conversationFinder;
     private final ConversationRepository conversationRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
-    @Transactional
     public void add(String conversationId, List<Message> messages) {
-        Conversation conversation = conversationFinder.require(UUID.fromString(conversationId));
-
         for (var message : messages) {
-            conversation.append(MapToMessage(message));
+            eventPublisher.publishEvent(new ChatMessageAddEvent(conversationId, message));
         }
-        conversationRepository.save(conversation);
+    }
 
+    @Async
+    @Transactional
+    @EventListener
+    public void onChatMessageAddEvent(ChatMessageAddEvent event) {
+        var conversation = conversationFinder.require(UUID.fromString(event.conversationId()));
+        conversation.append(MapToMessage(event.message()));
+        conversationRepository.save(conversation);
     }
 
     private ChatMessage MapToMessage(Message message) {
@@ -47,3 +54,4 @@ public class ChatHistoryImpl implements ChatHistory {
         return msg;
     }
 }
+
