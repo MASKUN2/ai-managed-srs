@@ -3,6 +3,7 @@ package maskun.aimanagedsrs.hexagon.conversation.application;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import maskun.aimanagedsrs.hexagon.conversation.domain.ChatAssistant;
+import maskun.aimanagedsrs.hexagon.conversation.domain.ConversationService;
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.Conversation;
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.UserMessage;
 import maskun.aimanagedsrs.hexagon.conversation.provided.ConversationFinder;
@@ -34,5 +35,18 @@ public class ChatAssistantClient implements ChatAssistant {
                 .user(request)
                 .stream()
                 .content();
+    }
+
+    @Override
+    public Flux<String> response(UUID conversationId, String request, ConversationService conversationService) {
+        Flux<String> cached = client.prompt()
+                .user(request)
+                .stream()
+                .content()
+                .cache();
+
+        conversationService.addNewAssistantMessage(conversationId, cached);
+
+        return cached;
     }
 }

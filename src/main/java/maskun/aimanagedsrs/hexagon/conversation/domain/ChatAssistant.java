@@ -10,4 +10,6 @@ public interface ChatAssistant {
     Flux<String> response(Conversation conversation, UserMessage message);
 
     Flux<String> response(UUID conversationId, String request);
+
+    Flux<String> response(UUID conversationId, String request, ConversationService conversationService);
 }

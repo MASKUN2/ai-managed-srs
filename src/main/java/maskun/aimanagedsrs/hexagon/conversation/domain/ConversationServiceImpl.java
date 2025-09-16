@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import maskun.aimanagedsrs.hexagon.conversation.provided.ConversationFinder;
 import maskun.aimanagedsrs.hexagon.conversation.required.ConversationRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
@@ -39,6 +40,33 @@ public class ConversationServiceImpl implements ConversationService {
                 });
 
         return streamResponse;
+    }
+
+    @Override
+    @Transactional
+    public void addNewUserMessage(UUID conversationId, String request) {
+        var conversation = conversationFinder.require(conversationId);
+        conversation.addUserMessage(request);
+        conversationRepository.save(conversation);
+    }
+
+    @Override
+    public void addNewAssistantMessage(UUID conversationId, Flux<String> response) {
+        var conversation = conversationFinder.require(conversationId);
+        final StringBuffer buffer = new StringBuffer();
+        response.doOnSubscribe(s -> log.info("addNewAssistantMessage : thread: " + Thread.currentThread() + "subscribed to assistant stream"))
+                .doOnNext(buffer::append)
+                .doOnComplete(() -> {
+                    conversation.addAssistantMessage(buffer.toString());
+                    conversationRepository.save(conversation);
+                }).subscribe();
+    }
+
+    @Transactional
+    public void addNewAssistantMessage(UUID conversationId, String response) {
+        var conversation = conversationFinder.require(conversationId);
+        conversation.addAssistantMessage(response);
+        conversationRepository.save(conversation);
     }
 
 }
