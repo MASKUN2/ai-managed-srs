@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 주고 받는 채팅을 기록하고 추가된 메세지에 대한 이벤트를 발생시킵니다.
+ * 주고 받는 채팅을 기록하고 추가된 메세지에 대한 기록을 수행합니다.
  */
 public final class ChatMessageHistoryAdvisor implements BaseChatMemoryAdvisor {
 
@@ -60,7 +60,7 @@ public final class ChatMessageHistoryAdvisor implements BaseChatMemoryAdvisor {
         String conversationId = getConversationId(chatClientRequest.context(), this.defaultConversationId);
 
         UserMessage userMessage = chatClientRequest.prompt().getUserMessage();
-        this.chatMessageRecorder.add(conversationId, userMessage);
+        this.chatMessageRecorder.record(conversationId, userMessage);
 
         return chatClientRequest;
     }
@@ -75,7 +75,7 @@ public final class ChatMessageHistoryAdvisor implements BaseChatMemoryAdvisor {
                     .map(g -> (Message) g.getOutput())
                     .toList();
         }
-        this.chatMessageRecorder.add(this.getConversationId(chatClientResponse.context(), this.defaultConversationId),
+        this.chatMessageRecorder.record(this.getConversationId(chatClientResponse.context(), this.defaultConversationId),
                 assistantMessages);
         return chatClientResponse;
     }

@@ -27,7 +27,7 @@ public class ChatMessageEventHandler implements ChatMessageRecorder {
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
-    public void add(String conversationId, List<Message> messages) {
+    public void record(String conversationId, List<Message> messages) {
         for (var message : messages) {
             eventPublisher.publishEvent(new ChatMessageAddEvent(conversationId, message));
         }
