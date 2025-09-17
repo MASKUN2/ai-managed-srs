@@ -2,7 +2,7 @@ package maskun.aimanagedsrs.hexagon.conversation.application;
 
 import lombok.extern.slf4j.Slf4j;
 import maskun.aimanagedsrs.hexagon.conversation.domain.ChatAssistant;
-import maskun.aimanagedsrs.hexagon.conversation.domain.ChatMessageEventPublisher;
+import maskun.aimanagedsrs.hexagon.conversation.provided.ConversationFinder;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -18,13 +18,20 @@ import java.util.UUID;
 @Service
 public class ChatAssistantClient implements ChatAssistant {
 
-    private final ChatClient client;
+    final static int MEMORY_SIZE = 4;
 
-    public ChatAssistantClient(ChatClient.Builder builder, ChatMemoryRepository chatMemoryRepository,
-                               ChatMessageEventPublisher chatMessageEventPublisher) {
+    private final ChatClient client;
+    private final ConversationFinder conversationFinder;
+
+    public ChatAssistantClient(ChatClient.Builder builder,
+                               ChatMemoryRepository chatMemoryRepository,
+                               ChatMessageEventPublisher chatMessageEventPublisher,
+                               ConversationFinder conversationFinder) {
+        this.conversationFinder = conversationFinder;
+
         MessageWindowChatMemory chatMemory = MessageWindowChatMemory.builder()
                 .chatMemoryRepository(chatMemoryRepository)
-                .maxMessages(4)
+                .maxMessages(MEMORY_SIZE)
                 .build();
 
         this.client = builder
@@ -39,6 +46,8 @@ public class ChatAssistantClient implements ChatAssistant {
 
     @Override
     public Flux<String> response(UUID conversationId, String request) {
+        conversationFinder.require(conversationId);
+
         return client.prompt()
                 .advisors(advisorSpec -> advisorSpec.param(ChatMemory.CONVERSATION_ID, conversationId.toString()))
                 .user(request)
