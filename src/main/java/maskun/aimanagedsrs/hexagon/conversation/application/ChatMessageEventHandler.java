@@ -26,7 +26,7 @@ public class ChatMessageEventHandler implements ChatMessageEventPublisher {
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
-    public void chatMessageAddEvent(String conversationId, List<Message> messages) {
+    public void add(String conversationId, List<Message> messages) {
         for (var message : messages) {
             eventPublisher.publishEvent(new ChatMessageAddEvent(conversationId, message));
         }
@@ -35,7 +35,7 @@ public class ChatMessageEventHandler implements ChatMessageEventPublisher {
     @Async
     @Transactional
     @EventListener
-    public void onChatMessageAddEvent(ChatMessageAddEvent event) {
+    public void onAdd(ChatMessageAddEvent event) {
         var conversation = conversationFinder.require(UUID.fromString(event.conversationId()));
         conversation.append(MapToMessage(event.message()));
         conversationRepository.save(conversation);

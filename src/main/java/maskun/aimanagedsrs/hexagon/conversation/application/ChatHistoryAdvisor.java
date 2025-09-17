@@ -55,7 +55,7 @@ public final class ChatHistoryAdvisor implements BaseChatMemoryAdvisor {
         String conversationId = getConversationId(chatClientRequest.context(), this.defaultConversationId);
 
         UserMessage userMessage = chatClientRequest.prompt().getUserMessage();
-        this.chatMessageEventPublisher.chatMessageAddEvent(conversationId, userMessage);
+        this.chatMessageEventPublisher.add(conversationId, userMessage);
 
         return chatClientRequest;
     }
@@ -70,7 +70,7 @@ public final class ChatHistoryAdvisor implements BaseChatMemoryAdvisor {
                     .map(g -> (Message) g.getOutput())
                     .toList();
         }
-        this.chatMessageEventPublisher.chatMessageAddEvent(this.getConversationId(chatClientResponse.context(), this.defaultConversationId),
+        this.chatMessageEventPublisher.add(this.getConversationId(chatClientResponse.context(), this.defaultConversationId),
                 assistantMessages);
         return chatClientResponse;
     }
