@@ -1,4 +1,4 @@
-package maskun.aimanagedsrs.hexagon.conversation.domain;
+package maskun.aimanagedsrs.hexagon.conversation.application;
 
 import reactor.core.publisher.Flux;
 

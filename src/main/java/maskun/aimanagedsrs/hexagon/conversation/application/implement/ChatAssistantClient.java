@@ -1,6 +1,6 @@
 package maskun.aimanagedsrs.hexagon.conversation.application.implement;
 
-import maskun.aimanagedsrs.hexagon.conversation.domain.ChatAssistant;
+import maskun.aimanagedsrs.hexagon.conversation.application.ChatAssistant;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import reactor.core.publisher.Flux;

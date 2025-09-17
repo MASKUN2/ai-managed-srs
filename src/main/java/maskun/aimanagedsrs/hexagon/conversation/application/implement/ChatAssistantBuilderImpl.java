@@ -1,9 +1,9 @@
 package maskun.aimanagedsrs.hexagon.conversation.application.implement;
 
 import lombok.RequiredArgsConstructor;
+import maskun.aimanagedsrs.hexagon.conversation.application.ChatAssistant;
 import maskun.aimanagedsrs.hexagon.conversation.application.ChatAssistantBuilder;
 import maskun.aimanagedsrs.hexagon.conversation.application.ChatMessageRecorder;
-import maskun.aimanagedsrs.hexagon.conversation.domain.ChatAssistant;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;

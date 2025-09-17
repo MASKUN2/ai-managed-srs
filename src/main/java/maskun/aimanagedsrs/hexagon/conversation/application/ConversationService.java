@@ -1,7 +1,6 @@
 package maskun.aimanagedsrs.hexagon.conversation.application;
 
 import jakarta.transaction.Transactional;
-import maskun.aimanagedsrs.hexagon.conversation.domain.ChatAssistant;
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.Conversation;
 import maskun.aimanagedsrs.hexagon.conversation.provided.ChatService;
 import maskun.aimanagedsrs.hexagon.conversation.provided.ConversationFinder;
