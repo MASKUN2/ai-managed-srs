@@ -1,4 +1,4 @@
-package maskun.aimanagedsrs.hexagon.conversation.domain;/*
+package maskun.aimanagedsrs.hexagon.conversation.application;/*
  * Copyright 2023-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +15,7 @@ package maskun.aimanagedsrs.hexagon.conversation.domain;/*
  */
 
 
+import maskun.aimanagedsrs.hexagon.conversation.domain.ChatMessageEventPublisher;
 import org.springframework.ai.chat.client.ChatClientMessageAggregator;
 import org.springframework.ai.chat.client.ChatClientRequest;
 import org.springframework.ai.chat.client.ChatClientResponse;

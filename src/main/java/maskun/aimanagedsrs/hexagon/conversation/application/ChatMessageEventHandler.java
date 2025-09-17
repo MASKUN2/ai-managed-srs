@@ -1,6 +1,8 @@
-package maskun.aimanagedsrs.hexagon.conversation.domain;
+package maskun.aimanagedsrs.hexagon.conversation.application;
 
 import lombok.RequiredArgsConstructor;
+import maskun.aimanagedsrs.hexagon.conversation.application.dto.ChatMessageAddEvent;
+import maskun.aimanagedsrs.hexagon.conversation.domain.ChatMessageEventPublisher;
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.AssistantChatMessage;
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.ChatMessage;
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.UserChatMessage;

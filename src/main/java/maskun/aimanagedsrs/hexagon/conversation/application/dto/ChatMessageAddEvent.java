@@ -1,4 +1,4 @@
-package maskun.aimanagedsrs.hexagon.conversation.domain;
+package maskun.aimanagedsrs.hexagon.conversation.application.dto;
 
 import org.springframework.ai.chat.messages.Message;
 

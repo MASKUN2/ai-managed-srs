@@ -2,7 +2,6 @@ package maskun.aimanagedsrs.hexagon.conversation.application;
 
 import lombok.extern.slf4j.Slf4j;
 import maskun.aimanagedsrs.hexagon.conversation.domain.ChatAssistant;
-import maskun.aimanagedsrs.hexagon.conversation.domain.ChatHistoryAdvisor;
 import maskun.aimanagedsrs.hexagon.conversation.domain.ChatMessageEventPublisher;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
