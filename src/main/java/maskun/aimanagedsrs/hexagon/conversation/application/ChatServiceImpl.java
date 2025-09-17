@@ -18,7 +18,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public Flux<String> chat(UUID conversationId, String request) {
         conversationFinder.require(conversationId);
-        return chatAssistant.response(conversationId.toString(), request);
+        return chatAssistant.response(conversationId, request);
     }
 
 }

@@ -13,6 +13,8 @@ import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
+import java.util.UUID;
+
 @Slf4j
 @Service
 public class ChatAssistantClient implements ChatAssistant {
@@ -37,9 +39,9 @@ public class ChatAssistantClient implements ChatAssistant {
     }
 
     @Override
-    public Flux<String> response(String conversationId, String request) {
+    public Flux<String> response(UUID conversationId, String request) {
         return client.prompt()
-                .advisors(advisorSpec -> advisorSpec.param(ChatMemory.CONVERSATION_ID, conversationId))
+                .advisors(advisorSpec -> advisorSpec.param(ChatMemory.CONVERSATION_ID, conversationId.toString()))
                 .user(request)
                 .stream()
                 .content();
