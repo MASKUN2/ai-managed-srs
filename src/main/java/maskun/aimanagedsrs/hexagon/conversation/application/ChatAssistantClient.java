@@ -2,8 +2,8 @@ package maskun.aimanagedsrs.hexagon.conversation.application;
 
 import lombok.extern.slf4j.Slf4j;
 import maskun.aimanagedsrs.hexagon.conversation.domain.ChatAssistant;
-import maskun.aimanagedsrs.hexagon.conversation.domain.ChatHistory;
 import maskun.aimanagedsrs.hexagon.conversation.domain.ChatHistoryAdvisor;
+import maskun.aimanagedsrs.hexagon.conversation.domain.ChatMessageEventPublisher;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -22,7 +22,7 @@ public class ChatAssistantClient implements ChatAssistant {
     private final ChatClient client;
 
     public ChatAssistantClient(ChatClient.Builder builder, ChatMemoryRepository chatMemoryRepository,
-                               ChatHistory chatHistory) {
+                               ChatMessageEventPublisher chatMessageEventPublisher) {
         MessageWindowChatMemory chatMemory = MessageWindowChatMemory.builder()
                 .chatMemoryRepository(chatMemoryRepository)
                 .maxMessages(4)
@@ -32,7 +32,7 @@ public class ChatAssistantClient implements ChatAssistant {
                 .defaultSystem("당신은 매우 유능한 비서입니다. 대답은 짧고 간결하게 얘기합니다.")
                 .defaultAdvisors(
                         MessageChatMemoryAdvisor.builder(chatMemory).build(),
-                        ChatHistoryAdvisor.builder(chatHistory).build(),
+                        ChatHistoryAdvisor.builder(chatMessageEventPublisher).build(),
                         new SimpleLoggerAdvisor()
                 )
                 .build();

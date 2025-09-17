@@ -19,13 +19,13 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class ChatHistoryImpl implements ChatHistory {
+public class ChatMessageEventHandler implements ChatMessageEventPublisher {
     private final ConversationFinder conversationFinder;
     private final ConversationRepository conversationRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
-    public void add(String conversationId, List<Message> messages) {
+    public void chatMessageAddEvent(String conversationId, List<Message> messages) {
         for (var message : messages) {
             eventPublisher.publishEvent(new ChatMessageAddEvent(conversationId, message));
         }

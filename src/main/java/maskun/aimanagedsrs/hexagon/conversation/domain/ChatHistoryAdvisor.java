@@ -31,7 +31,7 @@ import java.util.List;
 
 public final class ChatHistoryAdvisor implements BaseChatMemoryAdvisor {
 
-    private final ChatHistory chatHistory;
+    private final ChatMessageEventPublisher chatMessageEventPublisher;
 
     private final String defaultConversationId;
 
@@ -39,19 +39,19 @@ public final class ChatHistoryAdvisor implements BaseChatMemoryAdvisor {
 
     private final Scheduler scheduler;
 
-    private ChatHistoryAdvisor(ChatHistory chatHistory, String defaultConversationId, int order,
+    private ChatHistoryAdvisor(ChatMessageEventPublisher chatMessageEventPublisher, String defaultConversationId, int order,
                                Scheduler scheduler) {
-        Assert.notNull(chatHistory, "chatMemory cannot be null");
+        Assert.notNull(chatMessageEventPublisher, "chatMemory cannot be null");
         Assert.hasText(defaultConversationId, "defaultConversationId cannot be null or empty");
         Assert.notNull(scheduler, "scheduler cannot be null");
-        this.chatHistory = chatHistory;
+        this.chatMessageEventPublisher = chatMessageEventPublisher;
         this.defaultConversationId = defaultConversationId;
         this.order = order;
         this.scheduler = scheduler;
     }
 
-    public static Builder builder(ChatHistory chatHistory) {
-        return new Builder(chatHistory);
+    public static Builder builder(ChatMessageEventPublisher chatMessageEventPublisher) {
+        return new Builder(chatMessageEventPublisher);
     }
 
     @Override
@@ -69,7 +69,7 @@ public final class ChatHistoryAdvisor implements BaseChatMemoryAdvisor {
         String conversationId = getConversationId(chatClientRequest.context(), this.defaultConversationId);
 
         UserMessage userMessage = chatClientRequest.prompt().getUserMessage();
-        this.chatHistory.add(conversationId, userMessage);
+        this.chatMessageEventPublisher.chatMessageAddEvent(conversationId, userMessage);
 
         return chatClientRequest;
     }
@@ -84,7 +84,7 @@ public final class ChatHistoryAdvisor implements BaseChatMemoryAdvisor {
                     .map(g -> (Message) g.getOutput())
                     .toList();
         }
-        this.chatHistory.add(this.getConversationId(chatClientResponse.context(), this.defaultConversationId),
+        this.chatMessageEventPublisher.chatMessageAddEvent(this.getConversationId(chatClientResponse.context(), this.defaultConversationId),
                 assistantMessages);
         return chatClientResponse;
     }
@@ -106,13 +106,13 @@ public final class ChatHistoryAdvisor implements BaseChatMemoryAdvisor {
 
     public static final class Builder {
 
-        private final ChatHistory chatHistory;
-        private String conversationId = ChatHistory.DEFAULT_CONVERSATION_ID;
+        private final ChatMessageEventPublisher chatMessageEventPublisher;
+        private String conversationId = ChatMessageEventPublisher.DEFAULT_CONVERSATION_ID;
         private int order = Advisor.DEFAULT_CHAT_MEMORY_PRECEDENCE_ORDER + 1;
         private Scheduler scheduler = BaseAdvisor.DEFAULT_SCHEDULER;
 
-        private Builder(ChatHistory chatHistory) {
-            this.chatHistory = chatHistory;
+        private Builder(ChatMessageEventPublisher chatMessageEventPublisher) {
+            this.chatMessageEventPublisher = chatMessageEventPublisher;
         }
 
         public Builder conversationId(String conversationId) {
@@ -131,7 +131,7 @@ public final class ChatHistoryAdvisor implements BaseChatMemoryAdvisor {
         }
 
         public ChatHistoryAdvisor build() {
-            return new ChatHistoryAdvisor(this.chatHistory, this.conversationId, this.order, this.scheduler);
+            return new ChatHistoryAdvisor(this.chatMessageEventPublisher, this.conversationId, this.order, this.scheduler);
         }
 
     }
