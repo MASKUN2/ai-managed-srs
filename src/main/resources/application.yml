@@ -37,6 +37,6 @@ logging:
   level:
     org.springframework:
       ai.chat.client.advisor: DEBUG
-    org.hibernate.SQL: debug # logger에 출력하려면
+    org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
-    org.hibernate.event.internal: TRACE
+#    org.hibernate.event.internal: TRACE  # 영속성전이까지 표시
