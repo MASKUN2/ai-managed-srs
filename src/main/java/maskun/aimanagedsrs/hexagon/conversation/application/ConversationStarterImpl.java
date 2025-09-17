@@ -1,4 +1,4 @@
-package maskun.aimanagedsrs.hexagon.conversation.application.service;
+package maskun.aimanagedsrs.hexagon.conversation.application;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

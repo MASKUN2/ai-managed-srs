@@ -1,7 +1,5 @@
-package maskun.aimanagedsrs.hexagon.conversation.application.service;
+package maskun.aimanagedsrs.hexagon.conversation.application;
 
-import maskun.aimanagedsrs.hexagon.conversation.application.ChatAssistantBuilder;
-import maskun.aimanagedsrs.hexagon.conversation.application.ChatMessageEventPublisher;
 import maskun.aimanagedsrs.hexagon.conversation.domain.ChatAssistant;
 import maskun.aimanagedsrs.hexagon.conversation.provided.ChatService;
 import maskun.aimanagedsrs.hexagon.conversation.provided.ConversationFinder;
@@ -17,12 +15,12 @@ public class ChatServiceImpl implements ChatService {
 
     public ChatServiceImpl(ConversationFinder conversationFinder,
                            ChatAssistantBuilder chatAssistantBuilder,
-                           ChatMessageEventPublisher chatMessageEventPublisher) {
+                           ChatMessageRecorder chatMessageRecorder) {
         this.conversationFinder = conversationFinder;
 
         final String defaultInstruction = "당신은 유능한 비서로 정확한 정보를 바탕으로 짧고 간결하게 대답합니다.";
         final int chatMemorySize = 4;
-        this.chatAssistant = chatAssistantBuilder.build(defaultInstruction, chatMemorySize, chatMessageEventPublisher);
+        this.chatAssistant = chatAssistantBuilder.build(defaultInstruction, chatMemorySize, chatMessageRecorder);
     }
 
     @Override

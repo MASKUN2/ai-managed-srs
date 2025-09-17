@@ -1,4 +1,4 @@
-package maskun.aimanagedsrs.hexagon.conversation.application;
+package maskun.aimanagedsrs.hexagon.conversation.application.implement;
 
 import maskun.aimanagedsrs.hexagon.conversation.domain.ChatAssistant;
 import org.springframework.ai.chat.client.ChatClient;
@@ -6,7 +6,6 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import reactor.core.publisher.Flux;
 
 import java.util.UUID;
-
 
 public class ChatAssistantClient implements ChatAssistant {
     private final ChatClient client;

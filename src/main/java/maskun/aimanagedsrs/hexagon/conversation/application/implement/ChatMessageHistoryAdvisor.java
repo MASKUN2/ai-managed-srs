@@ -1,6 +1,7 @@
-package maskun.aimanagedsrs.hexagon.conversation.application;
+package maskun.aimanagedsrs.hexagon.conversation.application.implement;
 
 
+import maskun.aimanagedsrs.hexagon.conversation.application.ChatMessageRecorder;
 import org.springframework.ai.chat.client.ChatClientMessageAggregator;
 import org.springframework.ai.chat.client.ChatClientRequest;
 import org.springframework.ai.chat.client.ChatClientResponse;
@@ -19,9 +20,9 @@ import java.util.List;
 /**
  * 주고 받는 채팅을 기록하고 추가된 메세지에 대한 이벤트를 발생시킵니다.
  */
-public final class ChatMessageRecordAdvisor implements BaseChatMemoryAdvisor {
+public final class ChatMessageHistoryAdvisor implements BaseChatMemoryAdvisor {
 
-    private final ChatMessageEventPublisher chatMessageEventPublisher;
+    private final ChatMessageRecorder chatMessageRecorder;
 
     private final String defaultConversationId;
 
@@ -29,19 +30,19 @@ public final class ChatMessageRecordAdvisor implements BaseChatMemoryAdvisor {
 
     private final Scheduler scheduler;
 
-    private ChatMessageRecordAdvisor(ChatMessageEventPublisher chatMessageEventPublisher, String defaultConversationId, int order,
-                                     Scheduler scheduler) {
-        Assert.notNull(chatMessageEventPublisher, ChatMessageEventPublisher.class.getSimpleName() + " cannot be null");
+    private ChatMessageHistoryAdvisor(ChatMessageRecorder chatMessageRecorder, String defaultConversationId, int order,
+                                      Scheduler scheduler) {
+        Assert.notNull(chatMessageRecorder, ChatMessageRecorder.class.getSimpleName() + " cannot be null");
         Assert.hasText(defaultConversationId, "defaultConversationId cannot be null or empty");
         Assert.notNull(scheduler, "scheduler cannot be null");
-        this.chatMessageEventPublisher = chatMessageEventPublisher;
+        this.chatMessageRecorder = chatMessageRecorder;
         this.defaultConversationId = defaultConversationId;
         this.order = order;
         this.scheduler = scheduler;
     }
 
-    public static Builder builder(ChatMessageEventPublisher chatMessageEventPublisher) {
-        return new Builder(chatMessageEventPublisher);
+    public static Builder builder(ChatMessageRecorder chatMessageRecorder) {
+        return new Builder(chatMessageRecorder);
     }
 
     @Override
@@ -59,7 +60,7 @@ public final class ChatMessageRecordAdvisor implements BaseChatMemoryAdvisor {
         String conversationId = getConversationId(chatClientRequest.context(), this.defaultConversationId);
 
         UserMessage userMessage = chatClientRequest.prompt().getUserMessage();
-        this.chatMessageEventPublisher.add(conversationId, userMessage);
+        this.chatMessageRecorder.add(conversationId, userMessage);
 
         return chatClientRequest;
     }
@@ -74,7 +75,7 @@ public final class ChatMessageRecordAdvisor implements BaseChatMemoryAdvisor {
                     .map(g -> (Message) g.getOutput())
                     .toList();
         }
-        this.chatMessageEventPublisher.add(this.getConversationId(chatClientResponse.context(), this.defaultConversationId),
+        this.chatMessageRecorder.add(this.getConversationId(chatClientResponse.context(), this.defaultConversationId),
                 assistantMessages);
         return chatClientResponse;
     }
@@ -96,13 +97,13 @@ public final class ChatMessageRecordAdvisor implements BaseChatMemoryAdvisor {
 
     public static final class Builder {
 
-        private final ChatMessageEventPublisher chatMessageEventPublisher;
+        private final ChatMessageRecorder chatMessageRecorder;
         private String conversationId = ChatMemory.CONVERSATION_ID;
         private int order = Advisor.DEFAULT_CHAT_MEMORY_PRECEDENCE_ORDER + 1;
         private Scheduler scheduler = BaseAdvisor.DEFAULT_SCHEDULER;
 
-        private Builder(ChatMessageEventPublisher chatMessageEventPublisher) {
-            this.chatMessageEventPublisher = chatMessageEventPublisher;
+        private Builder(ChatMessageRecorder chatMessageRecorder) {
+            this.chatMessageRecorder = chatMessageRecorder;
         }
 
         public Builder conversationId(String conversationId) {
@@ -120,8 +121,8 @@ public final class ChatMessageRecordAdvisor implements BaseChatMemoryAdvisor {
             return this;
         }
 
-        public ChatMessageRecordAdvisor build() {
-            return new ChatMessageRecordAdvisor(this.chatMessageEventPublisher, this.conversationId, this.order, this.scheduler);
+        public ChatMessageHistoryAdvisor build() {
+            return new ChatMessageHistoryAdvisor(this.chatMessageRecorder, this.conversationId, this.order, this.scheduler);
         }
 
     }

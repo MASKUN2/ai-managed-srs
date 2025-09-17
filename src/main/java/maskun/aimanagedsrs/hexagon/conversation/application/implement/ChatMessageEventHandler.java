@@ -1,6 +1,7 @@
-package maskun.aimanagedsrs.hexagon.conversation.application;
+package maskun.aimanagedsrs.hexagon.conversation.application.implement;
 
 import lombok.RequiredArgsConstructor;
+import maskun.aimanagedsrs.hexagon.conversation.application.ChatMessageRecorder;
 import maskun.aimanagedsrs.hexagon.conversation.application.dto.ChatMessageAddEvent;
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.AssistantChatMessage;
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.ChatMessage;
@@ -20,7 +21,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class ChatMessageEventHandler implements ChatMessageEventPublisher {
+public class ChatMessageEventHandler implements ChatMessageRecorder {
     private final ConversationFinder conversationFinder;
     private final ConversationRepository conversationRepository;
     private final ApplicationEventPublisher eventPublisher;
