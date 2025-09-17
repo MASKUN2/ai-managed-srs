@@ -1,4 +1,4 @@
-package maskun.aimanagedsrs.hexagon.conversation.application;
+package maskun.aimanagedsrs.hexagon.conversation.application.service;
 
 import lombok.RequiredArgsConstructor;
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.Conversation;

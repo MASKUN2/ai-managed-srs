@@ -38,7 +38,7 @@ public class ChatAssistantClient implements ChatAssistant {
                 .defaultSystem("당신은 매우 유능한 비서입니다. 대답은 짧고 간결하게 얘기합니다.")
                 .defaultAdvisors(
                         MessageChatMemoryAdvisor.builder(chatMemory).build(),
-                        ChatMessageEventAdvisor.builder(chatMessageEventPublisher).build(),
+                        ChatMessageRecordAdvisor.builder(chatMessageEventPublisher).build(),
                         new SimpleLoggerAdvisor()
                 )
                 .build();

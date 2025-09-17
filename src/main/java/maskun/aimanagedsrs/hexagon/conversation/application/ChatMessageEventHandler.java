@@ -12,13 +12,13 @@ import org.springframework.ai.chat.messages.MessageType;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class ChatMessageEventHandler implements ChatMessageEventPublisher {
     private final ConversationFinder conversationFinder;

@@ -1,14 +1,15 @@
-package maskun.aimanagedsrs.hexagon.conversation.application;
+package maskun.aimanagedsrs.hexagon.conversation.application.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.Conversation;
+import maskun.aimanagedsrs.hexagon.conversation.provided.ConversationStarter;
 import maskun.aimanagedsrs.hexagon.conversation.required.ConversationRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class ConversationStarter implements maskun.aimanagedsrs.hexagon.conversation.provided.ConversationStarter {
+public class ConversationStarterImpl implements ConversationStarter {
 
     private final ConversationRepository conversationRepository;
 

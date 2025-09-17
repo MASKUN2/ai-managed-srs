@@ -5,6 +5,7 @@ import org.springframework.ai.chat.client.ChatClientMessageAggregator;
 import org.springframework.ai.chat.client.ChatClientRequest;
 import org.springframework.ai.chat.client.ChatClientResponse;
 import org.springframework.ai.chat.client.advisor.api.*;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.util.Assert;
@@ -15,7 +16,10 @@ import reactor.core.scheduler.Scheduler;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ChatMessageEventAdvisor implements BaseChatMemoryAdvisor {
+/**
+ * 주고 받는 채팅을 기록하고 추가된 메세지에 대한 이벤트를 발생시킵니다.
+ */
+public final class ChatMessageRecordAdvisor implements BaseChatMemoryAdvisor {
 
     private final ChatMessageEventPublisher chatMessageEventPublisher;
 
@@ -25,8 +29,8 @@ public final class ChatMessageEventAdvisor implements BaseChatMemoryAdvisor {
 
     private final Scheduler scheduler;
 
-    private ChatMessageEventAdvisor(ChatMessageEventPublisher chatMessageEventPublisher, String defaultConversationId, int order,
-                                    Scheduler scheduler) {
+    private ChatMessageRecordAdvisor(ChatMessageEventPublisher chatMessageEventPublisher, String defaultConversationId, int order,
+                                     Scheduler scheduler) {
         Assert.notNull(chatMessageEventPublisher, ChatMessageEventPublisher.class.getSimpleName() + " cannot be null");
         Assert.hasText(defaultConversationId, "defaultConversationId cannot be null or empty");
         Assert.notNull(scheduler, "scheduler cannot be null");
@@ -93,7 +97,7 @@ public final class ChatMessageEventAdvisor implements BaseChatMemoryAdvisor {
     public static final class Builder {
 
         private final ChatMessageEventPublisher chatMessageEventPublisher;
-        private String conversationId = ChatMessageEventPublisher.DEFAULT_CONVERSATION_ID;
+        private String conversationId = ChatMemory.CONVERSATION_ID;
         private int order = Advisor.DEFAULT_CHAT_MEMORY_PRECEDENCE_ORDER + 1;
         private Scheduler scheduler = BaseAdvisor.DEFAULT_SCHEDULER;
 
@@ -116,8 +120,8 @@ public final class ChatMessageEventAdvisor implements BaseChatMemoryAdvisor {
             return this;
         }
 
-        public ChatMessageEventAdvisor build() {
-            return new ChatMessageEventAdvisor(this.chatMessageEventPublisher, this.conversationId, this.order, this.scheduler);
+        public ChatMessageRecordAdvisor build() {
+            return new ChatMessageRecordAdvisor(this.chatMessageEventPublisher, this.conversationId, this.order, this.scheduler);
         }
 
     }
