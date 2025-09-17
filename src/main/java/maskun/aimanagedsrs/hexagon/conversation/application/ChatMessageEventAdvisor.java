@@ -15,7 +15,7 @@ import reactor.core.scheduler.Scheduler;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ChatHistoryAdvisor implements BaseChatMemoryAdvisor {
+public final class ChatMessageEventAdvisor implements BaseChatMemoryAdvisor {
 
     private final ChatMessageEventPublisher chatMessageEventPublisher;
 
@@ -25,8 +25,8 @@ public final class ChatHistoryAdvisor implements BaseChatMemoryAdvisor {
 
     private final Scheduler scheduler;
 
-    private ChatHistoryAdvisor(ChatMessageEventPublisher chatMessageEventPublisher, String defaultConversationId, int order,
-                               Scheduler scheduler) {
+    private ChatMessageEventAdvisor(ChatMessageEventPublisher chatMessageEventPublisher, String defaultConversationId, int order,
+                                    Scheduler scheduler) {
         Assert.notNull(chatMessageEventPublisher, ChatMessageEventPublisher.class.getSimpleName() + " cannot be null");
         Assert.hasText(defaultConversationId, "defaultConversationId cannot be null or empty");
         Assert.notNull(scheduler, "scheduler cannot be null");
@@ -116,8 +116,8 @@ public final class ChatHistoryAdvisor implements BaseChatMemoryAdvisor {
             return this;
         }
 
-        public ChatHistoryAdvisor build() {
-            return new ChatHistoryAdvisor(this.chatMessageEventPublisher, this.conversationId, this.order, this.scheduler);
+        public ChatMessageEventAdvisor build() {
+            return new ChatMessageEventAdvisor(this.chatMessageEventPublisher, this.conversationId, this.order, this.scheduler);
         }
 
     }

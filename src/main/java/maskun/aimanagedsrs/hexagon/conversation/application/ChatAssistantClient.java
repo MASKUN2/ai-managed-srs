@@ -18,7 +18,7 @@ import java.util.UUID;
 @Service
 public class ChatAssistantClient implements ChatAssistant {
 
-    final static int MEMORY_SIZE = 4;
+    final static int DEFAULT_CHAT_MEMORY_SIZE = 4;
 
     private final ChatClient client;
     private final ConversationFinder conversationFinder;
@@ -31,14 +31,14 @@ public class ChatAssistantClient implements ChatAssistant {
 
         MessageWindowChatMemory chatMemory = MessageWindowChatMemory.builder()
                 .chatMemoryRepository(chatMemoryRepository)
-                .maxMessages(MEMORY_SIZE)
+                .maxMessages(DEFAULT_CHAT_MEMORY_SIZE)
                 .build();
 
         this.client = builder
                 .defaultSystem("당신은 매우 유능한 비서입니다. 대답은 짧고 간결하게 얘기합니다.")
                 .defaultAdvisors(
                         MessageChatMemoryAdvisor.builder(chatMemory).build(),
-                        ChatHistoryAdvisor.builder(chatMessageEventPublisher).build(),
+                        ChatMessageEventAdvisor.builder(chatMessageEventPublisher).build(),
                         new SimpleLoggerAdvisor()
                 )
                 .build();
