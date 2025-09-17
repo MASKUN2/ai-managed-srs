@@ -16,7 +16,7 @@ import org.jspecify.annotations.Nullable;
 public abstract class ChatMessage extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "conversation_id", foreignKey = @ForeignKey(name = "fk_message_conversation"))
+    @JoinColumn(name = "conversation_id", foreignKey = @ForeignKey(name = "fk_chat_message_conversation"))
     protected @Nullable Conversation conversation;
 
     @Column(columnDefinition = "TEXT")

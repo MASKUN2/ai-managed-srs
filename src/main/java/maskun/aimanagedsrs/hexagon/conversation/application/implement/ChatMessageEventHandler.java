@@ -38,7 +38,9 @@ public class ChatMessageEventHandler implements ChatMessageRecorder {
     @EventListener
     public void onAdd(ChatMessageAddEvent event) {
         var conversation = conversationFinder.require(UUID.fromString(event.conversationId()));
+
         conversation.append(MapToMessage(event.message()));
+
         conversationRepository.save(conversation);
     }
 
@@ -48,7 +50,7 @@ public class ChatMessageEventHandler implements ChatMessageRecorder {
         ChatMessage msg = switch (messageType) {
             case USER -> UserChatMessage.of();
             case ASSISTANT -> AssistantChatMessage.of();
-            default -> throw new IllegalArgumentException("Unsupported message type: " + messageType);
+            default -> throw new IllegalArgumentException("지원되지 않는 메시지 유형 : " + messageType);
         };
 
         msg.content(message.getText());

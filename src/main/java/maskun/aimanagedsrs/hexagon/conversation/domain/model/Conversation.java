@@ -31,14 +31,4 @@ public class Conversation extends BaseEntity {
         chatMessages.add(message);
         return message;
     }
-
-    public ChatMessage addUserChat(String content) {
-        ChatMessage message = UserChatMessage.of().content(content);
-        return append(message);
-    }
-
-    public ChatMessage addAssistantChat(String content) {
-        ChatMessage assistantMessage = AssistantChatMessage.of().content(content);
-        return append(assistantMessage);
-    }
 }
