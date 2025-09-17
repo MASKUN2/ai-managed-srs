@@ -1,6 +1,7 @@
 package maskun.aimanagedsrs.hexagon.conversation.application.implement;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import maskun.aimanagedsrs.hexagon.conversation.application.ChatMessageRecorder;
 import maskun.aimanagedsrs.hexagon.conversation.application.dto.ChatMessageAddEvent;
 import maskun.aimanagedsrs.hexagon.conversation.domain.model.AssistantChatMessage;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ChatMessageEventHandler implements ChatMessageRecorder {
@@ -37,11 +39,15 @@ public class ChatMessageEventHandler implements ChatMessageRecorder {
     @Transactional
     @EventListener
     public void onAdd(ChatMessageAddEvent event) {
-        var conversation = conversationFinder.require(UUID.fromString(event.conversationId()));
+        try {
+            var conversation = conversationFinder.require(UUID.fromString(event.conversationId()));
 
-        conversation.append(MapToMessage(event.message()));
+            conversation.append(MapToMessage(event.message()));
 
-        conversationRepository.save(conversation);
+            conversationRepository.save(conversation);
+        } catch (Exception e) {
+            log.error("대화메세지를 기록하는데 실패했습니다. ChatMessageAddEvent: {}", event, e);
+        }
     }
 
     private ChatMessage MapToMessage(Message message) {
