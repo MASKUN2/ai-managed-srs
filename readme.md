@@ -1,8 +1,9 @@
-
 # 요구요구 (AI가 관리하는 요구사항명세서)
+
 AI가 관리하는 요구사항명세서
 
 #### 예시1
+
 ```text
 
 사용자: 유저 요구사항을 추가해줘. 사용자는 10자의 닉네임을 가지고 이메일을 가지고 있어야해
@@ -10,6 +11,7 @@ AI: 알겠습니다. 유저(User) 도메인에 대한 요구사항 명세서를 
 
 
 ```
+
 ### 요구사항
 
 - 사용자는 웹 기반의 대화창에서 AI와 대화가 가능하다.
@@ -51,10 +53,141 @@ https://github.com/spring-projects
 | 찾다:Find          | 없을 수도 있음                         |
 | 가져오다:Require     | 없어서는 안됨                          |
 
+### 클래스 설계
+
+```mermaid
+classDiagram
+    direction TB
+    class ChatApi {
+        -chatService: ChatService
+        +getAssistantStreamResponse(conversationId, request)
+    }
+
+    class ConversationApi {
+        -conversationStarter: ConversationStarter
+        +startNewConversation()
+    }
+
+    class ChatAssistant {
+        +response(conversationId, request)
+    }
+
+    class ChatMessageRecorder {
+        +record(conversationId, messages)
+    }
+
+    class ConversationService {
+        -conversationRepository: ConversationRepository
+        -conversationFinder: ConversationFinder
+        -chatAssistant: ChatAssistant
+        +chat(conversationId, request)
+        +startNew()
+    }
+
+    class ConversationQueryService {
+        -conversationRepository: ConversationRepository
+        +find(id)
+    }
+
+    class ChatAssistantBuilderImpl {
+        -chatClientBuilder: ChatClient.Builder
+        -chatMemoryRepository: ChatMemoryRepository
+        +build(...)
+    }
+
+    class ChatAssistantClient {
+        -client: ChatClient
+        +response(conversationId, request)
+    }
+
+    class ChatMessageEventHandler {
+        -conversationFinder: ConversationFinder
+        -conversationRepository: ConversationRepository
+        +onAdd(event)
+    }
+
+    class UserChatMessage {
+    }
+
+    class AssistantChatMessage {
+    }
+
+    class ChatService {
+        +chat(conversationId, request)
+    }
+
+    class ConversationFinder {
+    }
+
+    class ConversationStarter {
+        +startNew()
+    }
+
+    class ConversationRepository {
+        +save(conversation)
+        +findById(id)
+    }
+
+    class ChatMessage {
+        +conversation: Conversation
+        +content: String
+    }
+
+    class Conversation {
+        +chatMessages: List
+        +startNew()
+        +append(message)
+    }
+
+    class ChatAssistantBuilder {
+        +build(defaultInstruction, chatMemorySize)
+    }
+
+    <<interface>> ChatAssistant
+    <<interface>> ChatMessageRecorder
+    <<interface>> ChatService
+    <<interface>> ConversationFinder
+    <<interface>> ConversationStarter
+    <<interface>> ConversationRepository
+    <<abstract>> ChatMessage
+    <<interface>> ChatAssistantBuilder
+    ChatApi --> ChatService
+    ConversationApi --> ConversationStarter
+    ConversationService ..> Conversation
+    ConversationService --> ChatAssistant
+    ConversationQueryService ..> Conversation
+    ChatMessageEventHandler ..> Conversation
+    ChatMessageEventHandler ..> ChatMessage
+    ConversationService --> ConversationRepository
+    ConversationQueryService ..> ConversationRepository
+    ChatMessageEventHandler --> ConversationRepository
+    ConversationService ..> ChatAssistantBuilder
+    ChatAssistantBuilderImpl ..> ChatAssistant
+    ChatAssistantBuilderImpl ..> ChatMessageRecorder
+    ChatMessageEventHandler --> ConversationFinder
+    ChatAssistantBuilder <|.. ChatAssistantBuilderImpl
+    ChatAssistant <|.. ChatAssistantClient
+    ChatMessageRecorder <|.. ChatMessageEventHandler
+    Conversation "1" *-- "0..*" ChatMessage
+    ChatMessage <|-- UserChatMessage
+    ChatMessage <|-- AssistantChatMessage
+    ChatService <|.. ConversationService
+    ConversationStarter <|.. ConversationService
+    ConversationFinder <|.. ConversationQueryService
+    ConversationService --> ConversationFinder
+
+
+
+```
+
 ### 이슈노트
 
-#### f9659aedf8cde55de5890580fc385a3d135f5ded
+#### Spring AI 1.0의 자동구성 Bedrock VectorStore가 실행시 충돌.
+
+##### f9659aedf8cde55de5890580fc385a3d135f5ded
+
 ##### 문제
+
 ```text
 org.springframework.ai.vectorstore.pgvector.autoconfigure.PgVectorStoreAutoConfiguration required a single bean, but 2 were found:
 
@@ -62,16 +195,26 @@ org.springframework.ai.vectorstore.pgvector.autoconfigure.PgVectorStoreAutoConfi
 
 - titanEmbeddingModel: defined by method 'titanEmbeddingModel' in class path resource [org/springframework/ai/model/bedrock/titan/autoconfigure/BedrockTitanEmbeddingAutoConfiguration.class]
 ```
-##### 원인 
-`org.springframework.ai:spring-ai-starter-vector-store-pgvector`가 `VectorStore`를 자동 구성 할 때 의존하는 임베딩 모델이 자동 구성시 두개가 동시에 등록됨
+
+##### 원인
+
+`org.springframework.ai:spring-ai-starter-vector-store-pgvector`가 `VectorStore`를 자동 구성 할 때 의존하는 임베딩 모델이 자동 구성시 두개가 동시에
+등록됨
 
 ##### 해결
-`BedrockCohereEmbeddingAutoConfiguration.class , BedrockTitanEmbeddingAutoConfiguration.class` 컨디셔널 빈 등록 조건을 보고 해당 프로퍼티를 추가하여 해결 
+
+`BedrockCohereEmbeddingAutoConfiguration.class , BedrockTitanEmbeddingAutoConfiguration.class` 컨디셔널 빈 등록 조건을 보고 해당 프로퍼티를
+추가하여 해결
+
 ```yaml
 spring.ai.model.embedding=bedrock-titan
 ```
 
-#### 36bb7cbd87d3902df800605610f7476ee0998999
+---
+
+#### 스프링 AI Bedrock Converse Property를 IDE에서 인식하지 못함
+
+##### 36bb7cbd87d3902df800605610f7476ee0998999
 
 ##### 문제
 
@@ -80,12 +223,13 @@ spring.ai.model.embedding=bedrock-titan
 ##### 원인
 
 프레임워크의 관련 클래스가 인터페이스이고 구현체가 없어서 생긴 문제. 다만 런타임에 인식은 하는 상황
+깃허브에 관련 이슈(https://github.com/spring-projects/spring-ai/issues/3620)가 등록되고 수정된 부분이 다음 버전에 머지된 것을 확인하였음.
 
-##### 조치 보류
+---
 
-깃허브에 관련 이슈가 등록되고 수정된 부분이 다음 버전에 머지된 것을 확인하였음.
+#### AI의 스트림 응답을 클라이언트에서 처리할 때 생기는 어려움
 
-#### 738d1e8bda08d9e8e2b6b5d84e551647f5bc5faa, b5e0e7e71f6bd90e4aa14b1e751cf12cadaea80d
+##### 738d1e8bda08d9e8e2b6b5d84e551647f5bc5faa, b5e0e7e71f6bd90e4aa14b1e751cf12cadaea80d
 
 ##### 문제
 
@@ -102,7 +246,11 @@ spring.ai.model.embedding=bedrock-titan
 응답 컨텐츠 타입을 변경 `Content-Type: text/plain`. 서버 컨트롤러 메서드 리턴타입을 수정`Flux<String>`. 청크`Transfer-Encoding: chunked` 응답을 하도록
 변경함. 클라이언트 소스에서는 `fetch()` 만 사용하여 응답 바디를 실시간으로 읽어 렌더링하는 방식으로 구현함
 
-#### 1364dbf5a28f5470fa6abb3c499845e5601052f7
+---
+
+#### Spring AI 1.0 의 MessageChatMemoryAdvisor의 기본 구현이 AWS Bedrock API Spec에 충족하지 못함
+
+##### 1364dbf5a28f5470fa6abb3c499845e5601052f7
 
 ##### 문제
 
@@ -112,13 +260,21 @@ software.amazon.awssdk.services.bedrockruntime.model.ValidationException: A conv
 
 AWS bedrock LLM Model Nova Mirco API 사용시 요청문의 messages 리스트의 0번 객체가 UserMessage이지 않아서 요청이 거부된 문제가 발생함
 
-##### 해결
+##### 고민과 해결
+
+제공되는 MessageChatMemoryAdvisor를 사용시 발생하는 문제이며 Spring AI Repository 의 버그 이슈로 등록된 것을
+확인함(https://github.com/spring-projects/spring-ai/issues/2759)
 
 `ChatMemory.maxMessages({size})`가 홀수인 경우 요청문의 첫번째 message 객체가 AssistantMessage가 들어가게 됨. 이를 짝수로 변경하여 회피하였음.
 
-####  
+#### Spring AI 1.0 에서 대화기록을 저장할 기본 구현이 없음
 
 ##### 문제
 
 `JdbcChatMemoryRepository`,`ChatMemory`의 기본 구현이 `ChatMemory.maxMessages({size})`크기를 제외한 나머지 ChatMemory를 초기화하므로 따로 대화 기록이
 저장되지 않음
+
+##### 고민과 해결
+
+요구사항에 따라 응답이 실시간으로 전송되어야함. 애플리케이션 내부에서 ChatClient으로부터 전달받는 LLM API 응답인 Flux<String> 타입을 도중에 구독할 필요가 있었음.
+
