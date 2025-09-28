@@ -267,7 +267,7 @@ AWS bedrock LLM Model Nova Mirco API 사용시 요청문의 messages 리스트�
 
 `ChatMemory.maxMessages({size})`가 홀수인 경우 요청문의 첫번째 message 객체가 AssistantMessage가 들어가게 됨. 이를 짝수로 변경하여 회피하였음.
 
-#### Spring AI 1.0 에서 대화기록을 저장할 기본 구현이 없음
+#### Spring AI 1.0 에서 대화기록을 저장할 기본 구현이 없음, 구조에 대한 문제
 
 ##### 문제
 
