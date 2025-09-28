@@ -276,5 +276,151 @@ AWS bedrock LLM Model Nova Mirco API 사용시 요청문의 messages 리스트�
 
 ##### 고민과 해결
 
-요구사항에 따라 응답이 실시간으로 전송되어야함. 애플리케이션 내부에서 ChatClient으로부터 전달받는 LLM API 응답인 Flux<String> 타입을 도중에 구독할 필요가 있었음.
+- 요구사항에 따라 응답이 클라이언트에게 실시간으로 전달되어야 했음. Spring AI는 ChatModel으로부터 전달받는 스트림인 Flux<String> 타입의 응답을 리턴하는데 이를 클라이언트에게 송신하면서
+  기록도 할 수 있어야 했음.
+- 먼저 [비공식 구현 사례](https://www.youtube.com/watch?v=85qxgRIEycY)를 학습하였음. 사례에서 제시한 방식은 ChatModel을 추상화한 ChatClient로부터 반환받은
+  스트림을 관측하고 이를 기록하는 방식임. 처음에는 이 방식으로 구현하려고 했으나 의문이 듦.
+- 이 방식대로라면 응답을 관측하고 기록하는 로직이 애플리케이션 서비스 메소드에 구현되어야 해서 나중에 구현로직이 변경된다면 서비스 메소드를 수정해야하는 유지보수 취약점이 있으리라 예상되었음.
+- 그래서 이를 개선하기 위해서 서비스 메소드에서 ChatClient로 받은 스트림을 그대로 ChatRecord라는 커스텀 빈의 record(Flux<String> stream) 통해 기록로직을 처리한 스트림을
+  반환하도록 구조개선을 시도하려고 했음.
+- 개선 방식에도 몇가지 문제가 있음.
+- SpringAI의 ChatMemory는 Advisor 통해서 대화기록을 프롬프트에 자동으로 탑재함. 따라서 ChatClient의 API를 사용할 때는 이러한 기록을 신경쓰지 않고 질의가 가능함. 즉
+  ChatClient는 그 자체적으로도 추상화가 잘 되어있음.
+- 그에 반해 대화기록 저장을 위해 ChatClient으로 전달받은 스트림을 서비스 단계에서 처리하는 것은 기본구현된 ChatMemory와 ChatHistory(대화기록)을 다른 추상화 레벨에서 관리한다는 말이며
+  이는 각 레벨이 어긋나는 것이라고 생각됨.
+- 따라서 ChatHistory는 ChatMemory ChatClient가 스트림을 반환하기 전에 처리되게끔 하는 것이 이상적으로 보였음.
+- 이러한 구조 변화가 Spring AI의 세부 구현에 지나치게 영향을 받았기에 변화에 취약하다고 생각이 들기도 했음. 하지만 본 애플리케이션에서는 Spring AI를 프레임워크로 사용하기 때문에 이런 부분은
+  부분적으로 감수될 수 있다고 생각되었음. 대신 최대한 구현로직을 인터페이스화 할 수 있는 것을 분리하도록 노력하였음
+- 또한 ChatClient의 세부 API를 은닉하고 내부적으로 인터페이스를 통해 ChatClient API를 사용하는 것이 이상적으로 보였음.
+- 따라서 ChatClient를 현 도메인 모델에 맞도록 추상화한 ChatAssistant 인터페이스를 만듦. declaration 은 다음과 같음
+
+```java
+package maskun.aimanagedsrs.hexagon.conversation.application;
+
+public interface ChatAssistant {
+    Flux<String> response(UUID conversationId, String request);
+}
+
+```
+
+- 애플리케이션 서비스에서는 ChatAssistant을 구현한 빈의 메소드를 호출하는 것으로 다음과 같이 정리하였음.
+
+```java
+package maskun.aimanagedsrs.hexagon.conversation.application;
+
+@Service
+public class ConversationService implements ChatService {
+    private final ConversationRepository conversationRepository;
+    private final ConversationFinder conversationFinder;
+    private final ChatAssistant chatAssistant;
+
+    public ConversationService(
+            ConversationRepository conversationRepository,
+            ConversationFinder conversationFinder,
+            ChatAssistantBuilder chatAssistantBuilder,
+            ChatMessageRecorder chatMessageRecorder
+    ) {
+        this.conversationRepository = conversationRepository;
+        this.conversationFinder = conversationFinder;
+
+        final String defaultInstruction = "당신은 유능한 비서로 정확한 정보를 바탕으로 짧고 간결하게 대답합니다.";
+        final int chatMemorySize = 4;
+        this.chatAssistant = chatAssistantBuilder.build(defaultInstruction, chatMemorySize, chatMessageRecorder);
+    }
+
+    @Override
+    public Flux<String> chat(UUID conversationId, String request) {
+        conversationFinder.require(conversationId);
+        return chatAssistant.response(conversationId, request);
+    }
+
+}
+```
+
+- ChatAssistant를 생성하는 로직은 사용되는 ChatClient가 SpringAI API에 의존하므로 이를 추상화한 인터페이스로 세부 구현을 다음과 같이 캡슐화하였음
+
+```java
+// 인터페이스
+public interface ChatAssistantBuilder {
+    ChatAssistant build(String defaultInstruction, int chatMemorySize,
+                        ChatMessageRecorder chatMessageRecorder);
+}
+
+// 구현체
+@Component
+@RequiredArgsConstructor
+public class ChatAssistantBuilderImpl implements ChatAssistantBuilder {
+    private final ChatClient.Builder chatClientBuilder;
+    private final ChatMemoryRepository chatMemoryRepository;
+
+    @Override
+    public ChatAssistant build(String defaultInstruction, int chatMemorySize,
+                               ChatMessageRecorder chatMessageRecorder) {
+
+        Assert.isTrue(chatMemorySize > 0, "chatMemorySize는 1 이상이어야 합니다");
+
+        MessageWindowChatMemory chatMemory = MessageWindowChatMemory.builder()
+                .chatMemoryRepository(chatMemoryRepository)
+                .maxMessages(chatMemorySize)
+                .build();
+
+        ChatClient chatClient = chatClientBuilder
+                .defaultSystem(defaultInstruction)
+                .defaultAdvisors(
+                        MessageChatMemoryAdvisor.builder(chatMemory).build(),
+                        ChatMessageHistoryAdvisor.builder(chatMessageRecorder).build(),
+                        new SimpleLoggerAdvisor()
+                )
+                .build();
+
+        return new ChatAssistantClient(chatClient);
+    }
+}
+```
+
+- 위 인터페이스에서는 ChatAssistant를 생성할 때 호출자로부터 ChatMessageRecorder 빈을 전달받도록 설계하였음. 이는 ChatAssistant가 chat()을 할때 알아서 대화기록을
+  저장한다는 것을 유추할 수 있도록 한 Declaration이었음.
+
+- 마지막으로 이를 도식화한 설계도는 다음과 같음
+
+```mermaid
+classDiagram
+    direction TB
+    class ChatAssistant {
+        +response(conversationId, request)
+    }
+
+    class ChatMessageRecorder {
+        +record(conversationId, messages)
+    }
+
+    class ConversationService {
+        -conversationRepository: ConversationRepository
+        -conversationFinder: ConversationFinder
+        -chatAssistant: ChatAssistant
+        +chat(conversationId, request)
+    }
+
+    class ChatService {
+        +chat(conversationId, request)
+    }
+
+    class ChatAssistantBuilder {
+        +build(defaultInstruction, chatMemorySize, chatMessageRecorder)
+    }
+
+    <<interface>> ChatAssistant
+    <<interface>> ChatMessageRecorder
+    <<interface>> ChatService
+    <<interface>> ChatAssistantBuilder
+    ConversationService --> ChatAssistant
+    ConversationService ..> ChatAssistantBuilder
+    ChatService <|.. ConversationService
+    ConversationService ..> ChatMessageRecorder
+    ChatAssistantBuilder ..> ChatMessageRecorder
+    ChatAssistantBuilder ..> ChatAssistant
+
+```
+
+- 그 밖의 세부 구현은 본 문서에는 생략하였음.
 
