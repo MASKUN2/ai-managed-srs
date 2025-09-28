@@ -140,7 +140,7 @@ classDiagram
     }
 
     class ChatAssistantBuilder {
-        +build(defaultInstruction, chatMemorySize)
+        +build(defaultInstruction, chatMemorySize, chatMessageRecorder)
     }
 
     <<interface>> ChatAssistant
@@ -151,6 +151,7 @@ classDiagram
     <<interface>> ConversationRepository
     <<abstract>> ChatMessage
     <<interface>> ChatAssistantBuilder
+
     ChatApi --> ChatService
     ConversationApi --> ConversationStarter
     ConversationService ..> Conversation
@@ -175,8 +176,7 @@ classDiagram
     ConversationStarter <|.. ConversationService
     ConversationFinder <|.. ConversationQueryService
     ConversationService --> ConversationFinder
-
-
+    ConversationService ..> ChatMessageRecorder
 
 ```
 
