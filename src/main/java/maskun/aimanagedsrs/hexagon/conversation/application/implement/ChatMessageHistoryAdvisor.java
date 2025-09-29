@@ -2,6 +2,7 @@ package maskun.aimanagedsrs.hexagon.conversation.application.implement;
 
 
 import maskun.aimanagedsrs.hexagon.conversation.application.ChatMessageRecorder;
+import maskun.aimanagedsrs.hexagon.conversation.domain.model.ChatRole;
 import org.springframework.ai.chat.client.ChatClientMessageAggregator;
 import org.springframework.ai.chat.client.ChatClientRequest;
 import org.springframework.ai.chat.client.ChatClientResponse;
@@ -16,6 +17,7 @@ import reactor.core.scheduler.Scheduler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * 주고 받는 채팅을 기록하고 추가된 메세지에 대한 기록을 수행합니다.
@@ -60,7 +62,7 @@ public final class ChatMessageHistoryAdvisor implements BaseChatMemoryAdvisor {
         String conversationId = getConversationId(chatClientRequest.context(), this.defaultConversationId);
 
         UserMessage userMessage = chatClientRequest.prompt().getUserMessage();
-        this.chatMessageRecorder.record(conversationId, userMessage);
+        this.chatMessageRecorder.record(UUID.fromString(conversationId), ChatRole.USER, userMessage.getText());
 
         return chatClientRequest;
     }
@@ -75,8 +77,11 @@ public final class ChatMessageHistoryAdvisor implements BaseChatMemoryAdvisor {
                     .map(g -> (Message) g.getOutput())
                     .toList();
         }
-        this.chatMessageRecorder.record(this.getConversationId(chatClientResponse.context(), this.defaultConversationId),
-                assistantMessages);
+        String _conversationId = this.getConversationId(chatClientResponse.context(), this.defaultConversationId);
+        UUID conversationId = UUID.fromString(_conversationId);
+        for (var message : assistantMessages) {
+            this.chatMessageRecorder.record(conversationId, ChatRole.ASSISTANT, message.getText());
+        }
         return chatClientResponse;
     }
 

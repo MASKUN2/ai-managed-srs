@@ -27,5 +27,6 @@ public abstract class ChatMessage extends BaseEntity {
         this.content = content;
         return this;
     }
+
 }
 

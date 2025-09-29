@@ -1,10 +1,10 @@
 package maskun.aimanagedsrs.hexagon.conversation.application;
 
+import maskun.aimanagedsrs.hexagon.conversation.domain.model.ChatRole;
 import org.springframework.ai.chat.client.ChatClientRequest;
 import org.springframework.ai.chat.client.advisor.api.StreamAdvisorChain;
-import org.springframework.ai.chat.messages.Message;
 
-import java.util.List;
+import java.util.UUID;
 
 /**
  * 채팅 메세지를 기록합니다.
@@ -14,9 +14,5 @@ import java.util.List;
  */
 public interface ChatMessageRecorder {
 
-    default void record(String conversationId, Message message) {
-        record(conversationId, List.of(message));
-    }
-
-    void record(String conversationId, List<Message> messages);
+    void record(UUID conversationId, ChatRole chatRole, String content);
 }
